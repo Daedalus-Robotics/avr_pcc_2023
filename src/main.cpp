@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <Adafruit_SleepyDog.h>
 #include <micro_ros_platformio.h>
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
@@ -26,8 +27,11 @@ void setup()
 
     digitalWrite(LED_BUILTIN, 1);
     log(LogLevel::INFO, "Setup complete");
+
+    Watchdog.enable(2500);
 }
 
 void loop()
 {
+    Watchdog.reset();
 }

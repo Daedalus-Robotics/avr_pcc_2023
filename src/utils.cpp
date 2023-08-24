@@ -22,7 +22,15 @@ void cleanup()
     }
 }
 
-void (* resetFunc)() = 0;
+[[noreturn]] void doReset()
+{
+    cleanup();
+    Watchdog.disable();
+    Watchdog.enable(1);
+    while (true)
+    {
+    }
+}
 
 void reset()
 {
@@ -31,8 +39,7 @@ void reset()
     digitalWrite(LED_BUILTIN, 0);
     delay(200);
     digitalWrite(LED_BUILTIN, 1);
-    cleanup();
-    resetFunc();
+    doReset();
 }
 
 void loggingReset()
@@ -45,8 +52,7 @@ void loggingReset()
         delay(10);
         digitalWrite(LED_BUILTIN, 1);
     }
-    cleanup();
-    resetFunc();
+    doReset();
 }
 
 void log(LogLevel level, const char msg[])
@@ -65,7 +71,7 @@ void initLogger(rclc_support_t* support)
         loggingReset();
         return;
     }
-    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_node_fini(&logger_node); });
+    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_node_fini(&logger_node); })
 
     rc = rclc_publisher_init_default(&logger_publisher,
                                      &logger_node,
@@ -76,7 +82,7 @@ void initLogger(rclc_support_t* support)
         loggingReset();
         return;
     }
-    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_publisher_fini(&logger_publisher, &logger_node); });
+    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_publisher_fini(&logger_publisher, &logger_node); })
 
     logger_msg.name.data = (char*) "PCC ";
     logger_msg.name.size = sizeof(logger_msg.name.data);
