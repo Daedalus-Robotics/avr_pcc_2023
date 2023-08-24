@@ -27,11 +27,8 @@ void setup()
 
     digitalWrite(LED_BUILTIN, 1);
     log(LogLevel::INFO, "Setup complete");
-
-    Watchdog.enable(2500);
 }
 
 void loop()
 {
-    Watchdog.reset();
 }
