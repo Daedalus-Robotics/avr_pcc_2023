@@ -23,6 +23,13 @@ enum LogLevel
 };
 
 /**
+ * Add a callback to be called on cleanup
+ * They will be executed in reverse order
+ * @param callback The callback to add (Should return a rcl_ret_t from a micro-ros function or 0)
+ */
+void addCleanup(rcl_ret_t (* callback)());
+
+/**
  * Send a log message on a ros topic
  * @param level The log level
  * @param msg The log message to be sent

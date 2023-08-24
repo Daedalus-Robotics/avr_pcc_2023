@@ -5,8 +5,24 @@
 rcl_node_t logger_node;
 rcl_publisher_t logger_publisher;
 rcl_interfaces__msg__Log logger_msg;
+int cleanup_callback_index = 0;
 
-void (* resetFunc)(void) = 0;
+rcl_ret_t (* cleanup_callbacks[3])();
+
+void addCleanup(rcl_ret_t (* callback)())
+{
+    cleanup_callbacks[cleanup_callback_index++] = callback;
+}
+
+void cleanup()
+{
+    for (int i = sizeof(cleanup_callbacks); i > 0; i--)
+    {
+        cleanup_callbacks[i]();
+    }
+}
+
+void (* resetFunc)() = 0;
 
 void reset()
 {
@@ -15,6 +31,7 @@ void reset()
     digitalWrite(LED_BUILTIN, 0);
     delay(200);
     digitalWrite(LED_BUILTIN, 1);
+    cleanup();
     resetFunc();
 }
 
@@ -28,6 +45,7 @@ void loggingReset()
         delay(10);
         digitalWrite(LED_BUILTIN, 1);
     }
+    cleanup();
     resetFunc();
 }
 
@@ -47,6 +65,7 @@ void initLogger(rclc_support_t* support)
         loggingReset();
         return;
     }
+    addCleanup([] { return rcl_node_fini(&logger_node); });
     rc = rclc_publisher_init_default(&logger_publisher,
                                      &logger_node,
                                      ROSIDL_GET_MSG_TYPE_SUPPORT(rcl_interfaces, msg, Log),
@@ -56,6 +75,7 @@ void initLogger(rclc_support_t* support)
         loggingReset();
         return;
     }
+    addCleanup([] { return rcl_publisher_fini(&logger_publisher, &logger_node); });
 
     logger_msg.name.data = (char*) "PCC ";
     logger_msg.name.size = sizeof(logger_msg.name.data);
