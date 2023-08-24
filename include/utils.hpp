@@ -7,11 +7,28 @@
 #ifndef AVR_PCC_2023_UTILS_HPP
 #define AVR_PCC_2023_UTILS_HPP
 
+#define CLEANUP_ACTION(context, callback) { addCleanup((CleanupAction) {context, callback}); }
 
 /**
  * Reset the microcontroller
  */
 void reset();
+
+class Node; // forward declaration
+
+struct CleanupAction
+{
+    Node* context;
+
+    rcl_ret_t (* callback)(Node*);
+};
+
+/**
+ * Add a callback to be called on cleanup
+ * They will be executed in reverse order
+ * @param callback The callback to add (Should return a rcl_ret_t from a micro-ros function or 0)
+ */
+void addCleanup(CleanupAction cleanupAction);
 
 enum LogLevel
 {
@@ -21,13 +38,6 @@ enum LogLevel
     ERROR = 40,
     FATAL = 50
 };
-
-/**
- * Add a callback to be called on cleanup
- * They will be executed in reverse order
- * @param callback The callback to add (Should return a rcl_ret_t from a micro-ros function or 0)
- */
-void addCleanup(rcl_ret_t (* callback)());
 
 /**
  * Send a log message on a ros topic
