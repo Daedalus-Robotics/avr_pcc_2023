@@ -42,7 +42,7 @@ void beginOnboardNeopixel()
 {
     onboardNeopixel.begin();
     onboardNeopixel.setBrightness(20);
-    setOnboardNeopixel(255, 95, 0x00);
+    setOnboardNeopixel(255, 95, 0);
 }
 
 void addCleanup(CleanupAction cleanup_action)
@@ -91,7 +91,7 @@ void reset()
 
 void loggingReset()
 {
-    setOnboardNeopixel(0xff, 0x10, 0x00);
+    setOnboardNeopixel(255, 16, 0);
     digitalWrite(LED_BUILTIN, 1);
     for (int i = 0; i < 3; i++)
     {
