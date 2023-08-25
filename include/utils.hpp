@@ -33,7 +33,7 @@ struct CleanupAction
  */
 void addCleanup(CleanupAction cleanup_action);
 
-enum LogLevel
+enum [[maybe_unused]] LogLevel
 {
     DEBUG = 10,
     INFO = 20,
