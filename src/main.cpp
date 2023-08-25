@@ -38,7 +38,7 @@ void setup()
     log(LogLevel::INFO, "Setup complete");
 }
 
-void loop()
+[[maybe_unused]] void loop()
 {
     rclc_executor_spin(&executor);
 }
