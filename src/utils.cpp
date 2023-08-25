@@ -19,9 +19,9 @@ int cleanupCallbackIndex = 0;
 
 CleanupAction cleanupActions[3];
 
-void addCleanup(CleanupAction cleanupAction)
+void addCleanup(CleanupAction cleanup_action)
 {
-    cleanupActions[cleanupCallbackIndex++] = cleanupAction;
+    cleanupActions[cleanupCallbackIndex++] = cleanup_action;
 }
 
 void cleanup()
@@ -76,22 +76,22 @@ void loggingReset()
 void log(LogLevel level, const char msg[])
 {
     loggerMsg.level = level;
-    loggerMsg.msg.data = (char*) msg;
+    loggerMsg.msg.data = (char *) msg;
     loggerMsg.msg.size = strlen(msg);
     DO_NOTHING(rcl_publish(&loggerPublisher, &loggerMsg, NULL))
 }
 
-void rebootCallback(__attribute__((unused)) const void* request_msg, __attribute__((unused)) void* response_msg)
+void rebootCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
 {
     reset();
 }
 
-void shutdownCallback(__attribute__((unused)) const void* request_msg, __attribute__((unused)) void* response_msg)
+void shutdownCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
 {
     shutdown();
 }
 
-void initSystemNode(rclc_support_t* support, rclc_executor_t* executor)
+void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
 {
     rcl_ret_t rc = rclc_node_init_default(&systemNode, "pcc-system", "pcc-system", support);
     if (rc != RCL_RET_OK)
@@ -99,7 +99,7 @@ void initSystemNode(rclc_support_t* support, rclc_executor_t* executor)
         loggingReset();
         return;
     }
-    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_node_fini(&systemNode); })
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_node_fini(&systemNode); })
 
     rc = rclc_publisher_init_default(&loggerPublisher,
                                      &systemNode,
@@ -110,16 +110,16 @@ void initSystemNode(rclc_support_t* support, rclc_executor_t* executor)
         loggingReset();
         return;
     }
-    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_publisher_fini(&loggerPublisher, &systemNode); })
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_publisher_fini(&loggerPublisher, &systemNode); })
 
-    loggerMsg.name.data = (char*) "PCC ";
+    loggerMsg.name.data = (char *) "PCC ";
     loggerMsg.name.size = sizeof(loggerMsg.name.data);
 
     handleError(rclc_service_init_default(&rebootService,
                                           &systemNode,
                                           ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
                                           "reboot"), true);
-    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_service_fini(&rebootService, &systemNode); })
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&rebootService, &systemNode); })
     handleError(rclc_executor_add_service(executor, &rebootService,
                                           &rebootServiceRequest, &rebootServiceResponse,
                                           rebootCallback), true);
@@ -128,7 +128,7 @@ void initSystemNode(rclc_support_t* support, rclc_executor_t* executor)
                                           &systemNode,
                                           ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
                                           "shutdown"), true);
-    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_service_fini(&shutdownService, &systemNode); })
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&shutdownService, &systemNode); })
     handleError(rclc_executor_add_service(executor, &shutdownService,
                                           &shutdownServiceRequest, &shutdownServiceResponse,
                                           shutdownCallback), true);

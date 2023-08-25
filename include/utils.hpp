@@ -21,9 +21,9 @@ class Node; // forward declaration
 
 struct CleanupAction
 {
-    Node* context;
+    Node *context;
 
-    rcl_ret_t (* callback)(Node*);
+    rcl_ret_t (*callback)(Node *);
 };
 
 /**
@@ -31,7 +31,7 @@ struct CleanupAction
  * They will be executed in reverse order
  * @param callback The callback to add (Should return a rcl_ret_t from a micro-ros function or 0)
  */
-void addCleanup(CleanupAction cleanupAction);
+void addCleanup(CleanupAction cleanup_action);
 
 enum LogLevel
 {
@@ -53,7 +53,7 @@ void log(LogLevel level, const char msg[]);
  * Sets up the logger node and its publisher
  * @param support The support structure that is needed to init a node
  */
-void initSystemNode(rclc_support_t* support, rclc_executor_t* executor);
+void initSystemNode(rclc_support_t *support, rclc_executor_t *executor);
 
 /**
  * Checks the error code passed in and logs if it is an issue
