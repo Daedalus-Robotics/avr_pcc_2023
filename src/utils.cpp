@@ -9,7 +9,7 @@
 #define DO_NOTHING(X) {}
 
 #if ENABLE_BLINK_ERROR == 1
-#define MAYBE_BLINK_ERROR(error) blinkError(error)
+#define MAYBE_BLINK_ERROR(error) { blinkError(error); }
 #else
 #define MAYBE_BLINK_ERROR(error) {}
 #endif
@@ -194,7 +194,7 @@ void handleError(rcl_ret_t error, bool do_reset)
 {
     if (error != RCL_RET_OK)
     {
-        MAYBE_BLINK_ERROR(rc)
+        MAYBE_BLINK_ERROR(error)
         static char message[12];
         snprintf(message, sizeof(message), "ERROR: %li", error);
         if (do_reset)
