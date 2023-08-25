@@ -1,6 +1,18 @@
 #include "utils.hpp"
 
+/**
+ * If this is 1, errors will turn the neopixel blue and blink the
+ * led for each digit in the error code in reverse order
+ * @example If the error is 123, it will blink 3 times, 2 times, then 1 time
+ */
+#define ENABLE_BLINK_ERROR 0
 #define DO_NOTHING(X) {}
+
+#if ENABLE_BLINK_ERROR == 1
+#define MAYBE_BLINK_ERROR(error) blinkError(error)
+#else
+#define MAYBE_BLINK_ERROR(error) {}
+#endif
 
 Adafruit_NeoPixel onboardNeopixel(1, 8, NEO_GRB);
 
@@ -29,8 +41,8 @@ void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b)
 void beginOnboardNeopixel()
 {
     onboardNeopixel.begin();
-    onboardNeopixel.setBrightness(85);
-    setOnboardNeopixel(0xff, 0x5f, 0x00);
+    onboardNeopixel.setBrightness(20);
+    setOnboardNeopixel(255, 95, 0x00);
 }
 
 void addCleanup(CleanupAction cleanup_action)
@@ -48,7 +60,7 @@ void cleanup()
 
 [[noreturn]] void shutdown()
 {
-    setOnboardNeopixel(0x0f, 0x00, 0x0f);
+    setOnboardNeopixel(16, 0, 16);
     cleanup();
     while (true)
     {
@@ -68,7 +80,7 @@ void cleanup()
 
 void reset()
 {
-    setOnboardNeopixel(0xff, 0x10, 0x00);
+    setOnboardNeopixel(255, 16, 0);
     digitalWrite(LED_BUILTIN, 1);
     delay(50);
     digitalWrite(LED_BUILTIN, 0);
@@ -109,11 +121,36 @@ void shutdownCallback(__attribute__((unused)) const void *request_msg, __attribu
     shutdown();
 }
 
+void blinkError(rcl_ret_t error)
+{
+    int digit;
+    while (error > 0)
+    {
+        digit = error % 10;
+        error /= 10;
+
+        setOnboardNeopixel(0, 50, 255);
+        digitalWrite(LED_BUILTIN, 0);
+        delay(2500);
+        while (digit > 0)
+        {
+            delay(1000);
+            digitalWrite(LED_BUILTIN, 1);
+            delay(500);
+            digitalWrite(LED_BUILTIN, 0);
+            digit--;
+        }
+    }
+    delay(2000);
+
+}
+
 void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
 {
     rcl_ret_t rc = rclc_node_init_default(&systemNode, "pcc-system", "pcc-system", support);
     if (rc != RCL_RET_OK)
     {
+        MAYBE_BLINK_ERROR(rc)
         loggingReset();
         return;
     }
@@ -125,6 +162,7 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
                                      "rosout");
     if (rc != RCL_RET_OK)
     {
+        MAYBE_BLINK_ERROR(rc)
         loggingReset();
         return;
     }
@@ -156,6 +194,7 @@ void handleError(rcl_ret_t error, bool do_reset)
 {
     if (error != RCL_RET_OK)
     {
+        MAYBE_BLINK_ERROR(rc)
         static char message[12];
         snprintf(message, sizeof(message), "ERROR: %li", error);
         if (do_reset)
