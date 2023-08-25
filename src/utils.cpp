@@ -40,7 +40,7 @@ void addCleanup(CleanupAction cleanup_action)
 
 void cleanup()
 {
-    for (int i = sizeof(cleanupActions); i > 0; i--)
+    for (int i = cleanupCallbackIndex; i > 0; i--)
     {
         cleanupActions[i].callback(cleanupActions[i].context);
     }
@@ -57,8 +57,9 @@ void cleanup()
 
 [[noreturn]] void doReset()
 {
+    // Ensure that the cleanup doesn't stop the reset
+    Watchdog.enable(5000);
     cleanup();
-    Watchdog.disable();
     Watchdog.enable(1);
     while (true)
     {

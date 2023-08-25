@@ -37,6 +37,18 @@ void setup()
 
     initSystemNode(&support, &executor);
 
+    digitalWrite(LED_BUILTIN, 1);
+    delay(100);
+    digitalWrite(LED_BUILTIN, 0);
+    delay(100);
+    digitalWrite(LED_BUILTIN, 1);
+    delay(100);
+    digitalWrite(LED_BUILTIN, 0);
+    delay(100);
+    digitalWrite(LED_BUILTIN, 1);
+    delay(100);
+    digitalWrite(LED_BUILTIN, 0);
+
     setOnboardNeopixel(0x00, 0x05, 0x00);
     digitalWrite(LED_BUILTIN, 1);
     log(LogLevel::INFO, "Setup complete");
