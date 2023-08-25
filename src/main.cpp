@@ -18,6 +18,8 @@ void setup()
 {
     digitalWrite(LED_BUILTIN, 0);
 
+    while (!Serial)
+        yield();
     Serial.begin(115200);
     set_microros_serial_transports(Serial);
 
