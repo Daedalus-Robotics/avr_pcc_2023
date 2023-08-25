@@ -1,7 +1,7 @@
 #include "utils.hpp"
 
 /**
- * If this is 1, errors will turn the neopixel blue and blink the
+ * If this is 1, errors will turn the neopixel red and blink the
  * led for each digit in the error code in reverse order
  * @example If the error is 123, it will blink 3 times, 2 times, then 1 time
  */
@@ -129,7 +129,7 @@ void blinkError(rcl_ret_t error)
         digit = error % 10;
         error /= 10;
 
-        setOnboardNeopixel(0, 50, 255);
+        setOnboardNeopixel(255, 0, 0);
         digitalWrite(LED_BUILTIN, 0);
         delay(2500);
         while (digit > 0)
