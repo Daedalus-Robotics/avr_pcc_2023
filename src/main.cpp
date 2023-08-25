@@ -17,6 +17,7 @@ rclc_executor_t executor;
 void setup()
 {
     digitalWrite(LED_BUILTIN, 0);
+    beginOnboardNeopixel();
 
     while (!Serial)
         yield();
@@ -36,6 +37,7 @@ void setup()
 
     initSystemNode(&support, &executor);
 
+    setOnboardNeopixel(0x00, 0x05, 0x00);
     digitalWrite(LED_BUILTIN, 1);
     log(LogLevel::INFO, "Setup complete");
 }

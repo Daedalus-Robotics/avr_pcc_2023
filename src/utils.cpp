@@ -2,6 +2,11 @@
 
 #define DO_NOTHING(X) {}
 
+Adafruit_NeoPixel onboardNeopixel(1, 8, NEO_GRB);
+
+int cleanupCallbackIndex = 0;
+CleanupAction cleanupActions[15];
+
 rcl_node_t systemNode;
 
 rcl_publisher_t loggerPublisher;
@@ -15,9 +20,18 @@ rcl_service_t shutdownService;
 std_srvs__srv__Empty_Request shutdownServiceRequest;
 std_srvs__srv__Empty_Request shutdownServiceResponse;
 
-int cleanupCallbackIndex = 0;
+void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b)
+{
+    onboardNeopixel.setPixelColor(0, (r << 16) | (g << 8) | b);
+    onboardNeopixel.show();
+}
 
-CleanupAction cleanupActions[3];
+void beginOnboardNeopixel()
+{
+    onboardNeopixel.begin();
+    onboardNeopixel.setBrightness(85);
+    setOnboardNeopixel(0xff, 0x5f, 0x00);
+}
 
 void addCleanup(CleanupAction cleanup_action)
 {
@@ -34,6 +48,7 @@ void cleanup()
 
 [[noreturn]] void shutdown()
 {
+    setOnboardNeopixel(0x0f, 0x00, 0x0f);
     cleanup();
     while (true)
     {
@@ -52,16 +67,18 @@ void cleanup()
 
 void reset()
 {
+    setOnboardNeopixel(0xff, 0x10, 0x00);
     digitalWrite(LED_BUILTIN, 1);
-    delay(100);
+    delay(10);
     digitalWrite(LED_BUILTIN, 0);
-    delay(200);
+    delay(10);
     digitalWrite(LED_BUILTIN, 1);
     doReset();
 }
 
 void loggingReset()
 {
+    setOnboardNeopixel(0xff, 0x10, 0x00);
     digitalWrite(LED_BUILTIN, 1);
     for (int i = 0; i < 3; i++)
     {

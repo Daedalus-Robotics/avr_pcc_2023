@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Adafruit_SleepyDog.h>
+#include <Adafruit_NeoPixel.h>
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
@@ -11,6 +12,10 @@
 #define AVR_PCC_2023_UTILS_HPP
 
 #define CLEANUP_ACTION(context, callback) { addCleanup((CleanupAction) {context, callback}); }
+
+void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b);
+
+void beginOnboardNeopixel();
 
 /**
  * Reset the microcontroller
