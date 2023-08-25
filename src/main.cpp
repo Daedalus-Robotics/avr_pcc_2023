@@ -2,10 +2,17 @@
 #include <micro_ros_platformio.h>
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
+#include <rclc/executor.h>
 #include "utils.hpp"
+
+#define NUM_TIMERS 0
+#define NUM_SUBSCRIPTIONS 0
+#define NUM_SERVICES 2
+#define NUM_EXECUTOR_HANDLES (NUM_TIMERS + NUM_SUBSCRIPTIONS + NUM_SERVICES)
 
 rcl_allocator_t allocator;
 rclc_support_t support;
+rclc_executor_t executor;
 
 void setup()
 {
@@ -22,7 +29,10 @@ void setup()
         return;
     }
 
-    initLogger(&support);
+    executor = rclc_executor_get_zero_initialized_executor();
+    rclc_executor_init(&executor, &support.context, NUM_EXECUTOR_HANDLES, &allocator);
+
+    initSystemNode(&support, &executor);
 
     digitalWrite(LED_BUILTIN, 1);
     log(LogLevel::INFO, "Setup complete");
@@ -30,4 +40,5 @@ void setup()
 
 void loop()
 {
+    rclc_executor_spin(&executor);
 }

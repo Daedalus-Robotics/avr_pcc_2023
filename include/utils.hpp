@@ -2,7 +2,9 @@
 #include <Adafruit_SleepyDog.h>
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
+#include <rclc/executor.h>
 #include <rcl/error_handling.h>
+#include <std_srvs/srv/empty.h>
 #include <rcl_interfaces/msg/log.h>
 
 #ifndef AVR_PCC_2023_UTILS_HPP
@@ -51,7 +53,7 @@ void log(LogLevel level, const char msg[]);
  * Sets up the logger node and its publisher
  * @param support The support structure that is needed to init a node
  */
-void initLogger(rclc_support_t* support);
+void initSystemNode(rclc_support_t* support, rclc_executor_t* executor);
 
 /**
  * Checks the error code passed in and logs if it is an issue

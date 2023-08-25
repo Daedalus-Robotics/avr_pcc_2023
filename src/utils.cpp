@@ -2,16 +2,26 @@
 
 #define DO_NOTHING(X) {}
 
-rcl_node_t logger_node;
-rcl_publisher_t logger_publisher;
-rcl_interfaces__msg__Log logger_msg;
-int cleanup_callback_index = 0;
+rcl_node_t systemNode;
+
+rcl_publisher_t loggerPublisher;
+rcl_interfaces__msg__Log loggerMsg;
+
+rcl_service_t rebootService;
+std_srvs__srv__Empty_Request rebootServiceRequest;
+std_srvs__srv__Empty_Request rebootServiceResponse;
+
+rcl_service_t shutdownService;
+std_srvs__srv__Empty_Request shutdownServiceRequest;
+std_srvs__srv__Empty_Request shutdownServiceResponse;
+
+int cleanupCallbackIndex = 0;
 
 CleanupAction cleanupActions[3];
 
 void addCleanup(CleanupAction cleanupAction)
 {
-    cleanupActions[cleanup_callback_index++] = cleanupAction;
+    cleanupActions[cleanupCallbackIndex++] = cleanupAction;
 }
 
 void cleanup()
@@ -19,6 +29,14 @@ void cleanup()
     for (int i = sizeof(cleanupActions); i > 0; i--)
     {
         cleanupActions[i].callback(cleanupActions[i].context);
+    }
+}
+
+[[noreturn]] void shutdown()
+{
+    cleanup();
+    while (true)
+    {
     }
 }
 
@@ -57,24 +75,34 @@ void loggingReset()
 
 void log(LogLevel level, const char msg[])
 {
-    logger_msg.level = level;
-    logger_msg.msg.data = (char*) msg;
-    logger_msg.msg.size = strlen(msg);
-    DO_NOTHING(rcl_publish(&logger_publisher, &logger_msg, NULL))
+    loggerMsg.level = level;
+    loggerMsg.msg.data = (char*) msg;
+    loggerMsg.msg.size = strlen(msg);
+    DO_NOTHING(rcl_publish(&loggerPublisher, &loggerMsg, NULL))
 }
 
-void initLogger(rclc_support_t* support)
+void rebootCallback(__attribute__((unused)) const void* request_msg, __attribute__((unused)) void* response_msg)
 {
-    rcl_ret_t rc = rclc_node_init_default(&logger_node, "pcc-logger", "pcc-logger", support);
+    reset();
+}
+
+void shutdownCallback(__attribute__((unused)) const void* request_msg, __attribute__((unused)) void* response_msg)
+{
+    shutdown();
+}
+
+void initSystemNode(rclc_support_t* support, rclc_executor_t* executor)
+{
+    rcl_ret_t rc = rclc_node_init_default(&systemNode, "pcc-system", "pcc-system", support);
     if (rc != RCL_RET_OK)
     {
         loggingReset();
         return;
     }
-    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_node_fini(&logger_node); })
+    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_node_fini(&systemNode); })
 
-    rc = rclc_publisher_init_default(&logger_publisher,
-                                     &logger_node,
+    rc = rclc_publisher_init_default(&loggerPublisher,
+                                     &systemNode,
                                      ROSIDL_GET_MSG_TYPE_SUPPORT(rcl_interfaces, msg, Log),
                                      "rosout");
     if (rc != RCL_RET_OK)
@@ -82,10 +110,28 @@ void initLogger(rclc_support_t* support)
         loggingReset();
         return;
     }
-    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_publisher_fini(&logger_publisher, &logger_node); })
+    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_publisher_fini(&loggerPublisher, &systemNode); })
 
-    logger_msg.name.data = (char*) "PCC ";
-    logger_msg.name.size = sizeof(logger_msg.name.data);
+    loggerMsg.name.data = (char*) "PCC ";
+    loggerMsg.name.size = sizeof(loggerMsg.name.data);
+
+    handleError(rclc_service_init_default(&rebootService,
+                                          &systemNode,
+                                          ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
+                                          "reboot"), true);
+    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_service_fini(&rebootService, &systemNode); })
+    handleError(rclc_executor_add_service(executor, &rebootService,
+                                          &rebootServiceRequest, &rebootServiceResponse,
+                                          rebootCallback), true);
+
+    handleError(rclc_service_init_default(&shutdownService,
+                                          &systemNode,
+                                          ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
+                                          "shutdown"), true);
+    CLEANUP_ACTION(nullptr, [](Node* _) { return rcl_service_fini(&shutdownService, &systemNode); })
+    handleError(rclc_executor_add_service(executor, &shutdownService,
+                                          &shutdownServiceRequest, &shutdownServiceResponse,
+                                          shutdownCallback), true);
 }
 
 void handleError(rcl_ret_t error, bool do_reset)
