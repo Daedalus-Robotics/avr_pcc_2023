@@ -1,21 +1,19 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
-    <option name="myName" value="Project Default" />
+    <option name="myName" value="Daedalus Robotics" />
     <inspection_tool class="CssBrowserCompatibilityForProperties" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="HttpUrlsUsage" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredUrls">
+        <list>
+          <option value="http://localhost" />
+          <option value="http://127.0.0.1" />
+          <option value="http://0.0.0.0" />
+        </list>
+      </option>
     </inspection_tool>
     <inspection_tool class="IncorrectFormatting" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="LongLine" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
-    <inspection_tool class="PyCompatibilityInspection" enabled="false" level="WARNING" enabled_by_default="false">
-      <option name="ourVersions">
-        <value>
-          <list size="2">
-            <item index="0" class="java.lang.String" itemvalue="3.10" />
-            <item index="1" class="java.lang.String" itemvalue="3.11" />
-          </list>
-        </value>
-      </option>
-    </inspection_tool>
+    <inspection_tool class="OCInconsistentNaming" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="PyMissingTypeHintsInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="GENERIC_SERVER_ERROR_OR_WARNING">
       <option name="m_onlyWhenTypesAreKnown" value="false" />
     </inspection_tool>
