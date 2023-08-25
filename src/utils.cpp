@@ -70,9 +70,9 @@ void reset()
 {
     setOnboardNeopixel(0xff, 0x10, 0x00);
     digitalWrite(LED_BUILTIN, 1);
-    delay(10);
+    delay(50);
     digitalWrite(LED_BUILTIN, 0);
-    delay(10);
+    delay(50);
     digitalWrite(LED_BUILTIN, 1);
     doReset();
 }
@@ -85,7 +85,7 @@ void loggingReset()
     {
         delay(200);
         digitalWrite(LED_BUILTIN, 0);
-        delay(10);
+        delay(50);
         digitalWrite(LED_BUILTIN, 1);
     }
     doReset();
