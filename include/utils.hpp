@@ -19,17 +19,28 @@ void reset();
 
 class Node; // forward declaration
 
+/**
+ * An action to be executed at cleanup
+ */
 struct CleanupAction
 {
+    /**
+     * The context that is passed into the action
+     */
     Node *context;
 
+    /**
+     * The callback to call
+     * The context will be passed in
+     * @return A return code or a 0
+     */
     rcl_ret_t (*callback)(Node *);
 };
 
 /**
- * Add a callback to be called on cleanup
+ * Add a cleanup action to be called on cleanup
  * They will be executed in reverse order
- * @param callback The callback to add (Should return a rcl_ret_t from a micro-ros function or 0)
+ * @param cleanup_action The action to add (The callback should return a rcl_ret_t from a micro-ros function or 0)
  */
 void addCleanup(CleanupAction cleanup_action);
 
