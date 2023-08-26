@@ -5,7 +5,9 @@
 #ifndef AVR_PCC_2023_NODE_HPP
 #define AVR_PCC_2023_NODE_HPP
 
-
+/**
+ * Represents a micro ros node
+ */
 class Node
 {
 public:
