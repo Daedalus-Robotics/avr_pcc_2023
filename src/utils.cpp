@@ -17,9 +17,9 @@ rcl_node_t systemNode;
 rcl_publisher_t loggerPublisher;
 rcl_interfaces__msg__Log loggerMsg;
 
-rcl_service_t rebootService;
-std_srvs__srv__Empty_Request rebootServiceRequest;
-std_srvs__srv__Empty_Request rebootServiceResponse;
+rcl_service_t resetService;
+std_srvs__srv__Empty_Request resetServiceRequest;
+std_srvs__srv__Empty_Request resetServiceResponse;
 
 void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b)
 {
@@ -121,7 +121,7 @@ void blinkError(rcl_ret_t error)
     delay(2000);
 }
 
-void rebootCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
+void resetCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
 {
     reset();
 }
@@ -158,15 +158,15 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
 
     LOG(LogLevel::INFO, "Logger started");
 
-    handleError(rclc_service_init_best_effort(&rebootService,
+    handleError(rclc_service_init_best_effort(&resetService,
                                               &systemNode,
                                               ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
-                                              "reboot"), true);
-    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&rebootService, &systemNode); });
-    handleError(rclc_executor_add_service(executor, &rebootService,
-                                          &rebootServiceRequest, &rebootServiceResponse,
-                                          rebootCallback), true);
-    LOG(LogLevel::DEBUG, "Set up reboot service");
+                                              "reset"), true);
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&resetService, &systemNode); });
+    handleError(rclc_executor_add_service(executor, &resetService,
+                                          &resetServiceRequest, &resetServiceResponse,
+                                          resetCallback), true);
+    LOG(LogLevel::DEBUG, "Set up reset service");
 }
 
 void handleError(rcl_ret_t rc, bool do_reset)
