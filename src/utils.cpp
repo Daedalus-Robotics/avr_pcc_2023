@@ -7,12 +7,6 @@
  */
 #define ENABLE_BLINK_ERROR 0
 
-#if ENABLE_BLINK_ERROR == 1
-#define MAYBE_BLINK_ERROR(error) blinkError(error)
-#else
-#define MAYBE_BLINK_ERROR(error) {}
-#endif
-
 Adafruit_NeoPixel onboardNeopixel(1, 8, NEO_GRB);
 
 int cleanupCallbackIndex = 0;
@@ -155,7 +149,9 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
     rcl_ret_t rc = rclc_node_init_default(&systemNode, "pcc", "pcc", support);
     if (rc != RCL_RET_OK)
     {
-        MAYBE_BLINK_ERROR(rc);
+#if (ENABLE_BLINK_ERROR == 1)
+        blinkError(rc);
+#endif
         loggingReset();
         return;
     }
@@ -167,7 +163,9 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
                                      "rosout");
     if (rc != RCL_RET_OK)
     {
-        MAYBE_BLINK_ERROR(rc);
+#if (ENABLE_BLINK_ERROR == 1)
+        blinkError(rc);
+#endif
         loggingReset();
         return;
     }
@@ -199,25 +197,31 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
     LOG(LogLevel::DEBUG, "Set up shutdown service");
 }
 
-void handleError(rcl_ret_t error, bool do_reset)
+void handleError(rcl_ret_t rc, bool do_reset)
 {
-    if (error != RCL_RET_OK)
+    if (rc != RCL_RET_OK)
     {
         static char message[12];
-        snprintf(message, sizeof(message), "ERROR: %li", error);
+        snprintf(message, sizeof(message), "ERROR: %li", rc);
         if (do_reset)
         {
             LOG(LogLevel::FATAL, message);
-            MAYBE_BLINK_ERROR(error);
+#if (ENABLE_BLINK_ERROR == 1)
+            blinkError(rc);
+#endif
             reset();
         }
         else
         {
+#if (ENABLE_BLINK_ERROR == 1)
             bool can_log = LOG(LogLevel::ERROR, message);
             if (!can_log)
             {
-                MAYBE_BLINK_ERROR(error);
+                blinkError(rc);
             }
+#else
+            LOG(LogLevel::ERROR, message);
+#endif
         }
     }
 }
