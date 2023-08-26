@@ -33,17 +33,22 @@ void setup()
     }
 
     executor = rclc_executor_get_zero_initialized_executor();
-    rclc_executor_init(&executor, &support.context, NUM_EXECUTOR_HANDLES, &allocator);
+    rc = rclc_executor_init(&executor, &support.context, NUM_EXECUTOR_HANDLES, &allocator);
+    if (rc != RCL_RET_OK)
+    {
+        reset();
+        return;
+    }
 
     initSystemNode(&support, &executor);
 
-    setOnboardNeopixel(0x00, 0x05, 0x00);
+    setOnboardNeopixel(0, 0, 0);
     digitalWrite(LED_BUILTIN, 1);
-    log(LogLevel::INFO, "Setup complete");
     LOG(LogLevel::INFO, "Setup complete")
+    delay(1000);
 }
 
 [[maybe_unused]] void loop()
 {
-    rclc_executor_spin(&executor);
+    handleError(rclc_executor_spin(&executor));
 }
