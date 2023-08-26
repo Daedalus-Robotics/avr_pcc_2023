@@ -7,8 +7,8 @@
 
 #define NUM_TIMERS 0
 #define NUM_SUBSCRIPTIONS 0
-#define NUM_SERVICES 2
-#define NUM_EXECUTOR_HANDLES (NUM_TIMERS + NUM_SUBSCRIPTIONS + NUM_SERVICES)
+#define NUM_SERVICES 0
+#define NUM_EXECUTOR_HANDLES (SYSTEM_EXECUTOR_HANDLES + NUM_TIMERS + NUM_SUBSCRIPTIONS + NUM_SERVICES)
 
 rcl_allocator_t allocator;
 rclc_support_t support;
@@ -25,27 +25,16 @@ rclc_executor_t executor;
     set_microros_serial_transports(Serial);
 
     allocator = rcl_get_default_allocator();
-    rcl_ret_t rc = rclc_support_init(&support, 0, nullptr, &allocator);
-    if (rc != RCL_RET_OK)
-    {
-        reset();
-        return;
-    }
+    handleEarlyError(rclc_support_init(&support, 0, nullptr, &allocator));
 
     executor = rclc_executor_get_zero_initialized_executor();
-    rc = rclc_executor_init(&executor, &support.context, NUM_EXECUTOR_HANDLES, &allocator);
-    if (rc != RCL_RET_OK)
-    {
-        reset();
-        return;
-    }
+    handleEarlyError(rclc_executor_init(&executor, &support.context, NUM_EXECUTOR_HANDLES, &allocator));
 
-    initSystemNode(&support, &executor);
+    initSystem(&support, &executor);
 
     setOnboardNeopixel(0, 0, 0);
     digitalWrite(LED_BUILTIN, 1);
     LOG(LogLevel::INFO, "Setup complete");
-    delay(1000);
 }
 
 [[maybe_unused]] void loop()

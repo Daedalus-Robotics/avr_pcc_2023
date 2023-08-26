@@ -5,23 +5,22 @@
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 #include <rcl/error_handling.h>
+#include <rmw_microros/rmw_microros.h>
 #include <rcl_interfaces/msg/log.h>
 #include <std_srvs/srv/empty.h>
 
 #ifndef AVR_PCC_2023_UTILS_HPP
 #define AVR_PCC_2023_UTILS_HPP
 
+#define SYSTEM_EXECUTOR_HANDLES 3
+
 #define CLEANUP_ACTION(context, callback) addCleanup((CleanupAction) {context, callback})
 #define LOG(logLevel, msg) log(logLevel, msg, __FILE__, __FUNCTION__, __LINE__)
+#define HANDLE_ERROR(rc, do_reset) handleError(rc, __FILE__, __FUNCTION__, __LINE__, do_reset)
 
 void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b);
 
 void beginOnboardNeopixel();
-
-/**
- * Reset the microcontroller
- */
-void reset();
 
 class Node; // forward declaration
 
@@ -67,20 +66,30 @@ enum [[maybe_unused]] LogLevel
  * @param function The function where the log was called
  * @param line The line number that the log was called
  */
-bool log(LogLevel level, const char msg[], const char file[] = "", const char function[] = "", uint32_t line = 0);
+bool log(LogLevel level,
+         const char msg[], const char file[] = "", const char function[] = "", uint32_t line = 0);
+
+/**
+ * Checks the error code passed in and resets
+ * Only use this if the logger has not been set up yet
+ * @param rc The error code
+ */
+void handleEarlyError(rcl_ret_t rc);
+
+/**
+ * Checks the error code passed in and logs if it is an issue
+ * @param rc The error code
+ * @param do_reset Whether to reset the microcontroller if there is an error
+ */
+void handleError(rcl_ret_t rc,
+                 const char file[] = "", const char function[] = "", uint32_t line = 0,
+                 bool do_reset = false);
 
 /**
  * Sets up the logger node and its publisher
  * @param support The support structure that is needed to init a node
  */
-void initSystemNode(rclc_support_t *support, rclc_executor_t *executor);
-
-/**
- * Checks the error code passed in and logs if it is an issue
- * @param error The error code
- * @param do_reset Whether to reset the microcontroller if there is an error
- */
-void handleError(rcl_ret_t error, bool do_reset = false);
+void initSystem(rclc_support_t *support, rclc_executor_t *executor);
 
 
 #endif //AVR_PCC_2023_UTILS_HPP

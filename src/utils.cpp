@@ -12,6 +12,8 @@ Adafruit_NeoPixel onboardNeopixel(1, 8, NEO_GRB);
 int cleanupCallbackIndex = 0;
 CleanupAction cleanupActions[15];
 
+rcl_timer_t pingTimer;
+
 rcl_node_t systemNode;
 
 rcl_publisher_t loggerPublisher;
@@ -51,6 +53,14 @@ void cleanup()
     }
 }
 
+[[noreturn]] void forceReset()
+{
+    Watchdog.enable(1);
+    while (true)
+    {
+    }
+}
+
 [[noreturn]] void doReset()
 {
     // Ensure that the cleanup doesn't stop the reset
@@ -70,20 +80,6 @@ void reset()
     digitalWrite(LED_BUILTIN, 0);
     delay(50);
     digitalWrite(LED_BUILTIN, 1);
-    doReset();
-}
-
-void loggingReset()
-{
-    setOnboardNeopixel(255, 0, 25);
-    digitalWrite(LED_BUILTIN, 1);
-    for (int i = 0; i < 3; i++)
-    {
-        delay(200);
-        digitalWrite(LED_BUILTIN, 0);
-        delay(50);
-        digitalWrite(LED_BUILTIN, 1);
-    }
     doReset();
 }
 
@@ -125,12 +121,24 @@ void blinkError(rcl_ret_t error)
     delay(2000);
 }
 
-void resetCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
+void pingTimerCallback(__attribute__((unused)) rcl_timer_t *timer,
+                       __attribute__((unused)) int64_t time_since_last_call)
+{
+    rmw_ret_t ping_result = rmw_uros_ping_agent(10, 1);
+    if (ping_result != RMW_RET_OK)
+    {
+        forceReset();
+    }
+}
+
+void resetCallback(__attribute__((unused)) const void *request_msg,
+                   __attribute__((unused)) void *response_msg)
 {
     reset();
 }
 
-[[noreturn]] void cleanupCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
+[[noreturn]] void cleanupCallback(__attribute__((unused)) const void *request_msg,
+                                  __attribute__((unused)) void *response_msg)
 {
     cleanup();
     while (true)
@@ -138,60 +146,27 @@ void resetCallback(__attribute__((unused)) const void *request_msg, __attribute_
     }
 }
 
-void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
+void handleEarlyError(rcl_ret_t rc)
 {
-    rcl_ret_t rc = rclc_node_init_default(&systemNode, "pcc", "pcc", support);
     if (rc != RCL_RET_OK)
     {
 #if (ENABLE_BLINK_ERROR == 1)
         blinkError(rc);
 #endif
-        loggingReset();
-        return;
+        setOnboardNeopixel(255, 0, 25);
+        digitalWrite(LED_BUILTIN, 1);
+        for (int i = 0; i < 3; i++)
+        {
+            delay(200);
+            digitalWrite(LED_BUILTIN, 0);
+            delay(50);
+            digitalWrite(LED_BUILTIN, 1);
+        }
+        doReset();
     }
-    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_node_fini(&systemNode); });
-
-    rc = rclc_publisher_init_default(&loggerPublisher,
-                                     &systemNode,
-                                     ROSIDL_GET_MSG_TYPE_SUPPORT(rcl_interfaces, msg, Log),
-                                     "/rosout");
-    if (rc != RCL_RET_OK)
-    {
-#if (ENABLE_BLINK_ERROR == 1)
-        blinkError(rc);
-#endif
-        loggingReset();
-        return;
-    }
-    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_publisher_fini(&loggerPublisher, &systemNode); });
-
-    loggerMsg.name.data = (char *) "PCC";
-    loggerMsg.name.size = sizeof(loggerMsg.name.data);
-
-    LOG(LogLevel::INFO, "Logger started");
-
-    handleError(rclc_service_init_best_effort(&resetService,
-                                              &systemNode,
-                                              ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
-                                              "reset"), true);
-    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&resetService, &systemNode); });
-    handleError(rclc_executor_add_service(executor, &resetService,
-                                          &resetServiceRequest, &resetServiceResponse,
-                                          resetCallback), true);
-    LOG(LogLevel::DEBUG, "Set up reset service");
-
-    handleError(rclc_service_init_best_effort(&cleanupService,
-                                              &systemNode,
-                                              ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
-                                              "cleanup"), true);
-    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&cleanupService, &systemNode); });
-    handleError(rclc_executor_add_service(executor, &cleanupService,
-                                          &cleanupServiceRequest, &cleanupServiceResponse,
-                                          cleanupCallback), true);
-    LOG(LogLevel::DEBUG, "Set up cleanup service");
 }
 
-void handleError(rcl_ret_t rc, bool do_reset)
+void handleError(rcl_ret_t rc, const char file[], const char function[], uint32_t line, bool do_reset)
 {
     if (rc != RCL_RET_OK)
     {
@@ -199,7 +174,7 @@ void handleError(rcl_ret_t rc, bool do_reset)
         snprintf(message, sizeof(message), "ERROR: %li", rc);
         if (do_reset)
         {
-            LOG(LogLevel::FATAL, message);
+            log(LogLevel::FATAL, message, file, function, line);
 #if (ENABLE_BLINK_ERROR == 1)
             blinkError(rc);
 #endif
@@ -208,14 +183,55 @@ void handleError(rcl_ret_t rc, bool do_reset)
         else
         {
 #if (ENABLE_BLINK_ERROR == 1)
-            bool can_log = LOG(LogLevel::ERROR, message);
+            bool can_log = log(LogLevel::ERROR, message, message, file, function, line);
             if (!can_log)
             {
                 blinkError(rc);
             }
 #else
-            LOG(LogLevel::ERROR, message);
+            log(LogLevel::ERROR, message, file, function, line);
 #endif
         }
     }
+}
+
+void initSystem(rclc_support_t *support, rclc_executor_t *executor)
+{
+    handleEarlyError(rclc_timer_init_default(&pingTimer, support, RCL_MS_TO_NS(1000), pingTimerCallback));
+    handleEarlyError(rclc_executor_add_timer(executor, &pingTimer));
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_timer_fini(&pingTimer); });
+
+    handleEarlyError(rclc_node_init_default(&systemNode, "pcc", "pcc", support));
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_node_fini(&systemNode); });
+
+    handleEarlyError(rclc_publisher_init_default(&loggerPublisher,
+                                                 &systemNode,
+                                                 ROSIDL_GET_MSG_TYPE_SUPPORT(rcl_interfaces, msg, Log),
+                                                 "/rosout"));
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_publisher_fini(&loggerPublisher, &systemNode); });
+
+    loggerMsg.name.data = (char *) "PCC";
+    loggerMsg.name.size = sizeof(loggerMsg.name.data);
+
+    LOG(LogLevel::INFO, "Logger started");
+
+    HANDLE_ERROR(rclc_service_init_best_effort(&resetService,
+                                               &systemNode,
+                                               ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
+                                               "reset"), true);
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&resetService, &systemNode); });
+    HANDLE_ERROR(rclc_executor_add_service(executor, &resetService,
+                                           &resetServiceRequest, &resetServiceResponse,
+                                           resetCallback), true);
+    LOG(LogLevel::DEBUG, "Set up reset service");
+
+    HANDLE_ERROR(rclc_service_init_best_effort(&cleanupService,
+                                               &systemNode,
+                                               ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
+                                               "cleanup"), true);
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&cleanupService, &systemNode); });
+    HANDLE_ERROR(rclc_executor_add_service(executor, &cleanupService,
+                                           &cleanupServiceRequest, &cleanupServiceResponse,
+                                           cleanupCallback), true);
+    LOG(LogLevel::DEBUG, "Set up cleanup service");
 }
