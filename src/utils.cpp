@@ -6,7 +6,6 @@
  * @example If the error is 123, it will blink 3 times, 2 times, then 1 time
  */
 #define ENABLE_BLINK_ERROR 0
-#define DO_NOTHING(X) {}
 
 #if ENABLE_BLINK_ERROR == 1
 #define MAYBE_BLINK_ERROR(error) blinkError(error)
