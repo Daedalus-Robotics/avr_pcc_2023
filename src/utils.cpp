@@ -172,20 +172,20 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
 
     log(LogLevel::INFO, "Logger started");
 
-    handleError(rclc_service_init_default(&rebootService,
-                                          &systemNode,
-                                          ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
-                                          "reboot"), true);
+    handleError(rclc_service_init_best_effort(&rebootService,
+                                              &systemNode,
+                                              ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
+                                              "reboot"), true);
     CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&rebootService, &systemNode); })
     handleError(rclc_executor_add_service(executor, &rebootService,
                                           &rebootServiceRequest, &rebootServiceResponse,
                                           rebootCallback), true);
     log(LogLevel::DEBUG, "Set up reboot service");
 
-    handleError(rclc_service_init_default(&shutdownService,
-                                          &systemNode,
-                                          ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
-                                          "shutdown"), true);
+    handleError(rclc_service_init_best_effort(&shutdownService,
+                                              &systemNode,
+                                              ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
+                                              "shutdown"), true);
     CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&shutdownService, &systemNode); })
     handleError(rclc_executor_add_service(executor, &shutdownService,
                                           &shutdownServiceRequest, &shutdownServiceResponse,
