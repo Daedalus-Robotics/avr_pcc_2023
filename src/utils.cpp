@@ -21,6 +21,10 @@ rcl_service_t resetService;
 std_srvs__srv__Empty_Request resetServiceRequest;
 std_srvs__srv__Empty_Request resetServiceResponse;
 
+rcl_service_t cleanupService;
+std_srvs__srv__Empty_Request cleanupServiceRequest;
+std_srvs__srv__Empty_Request cleanupServiceResponse;
+
 void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b)
 {
     onboardNeopixel.setPixelColor(0, (r << 16) | (g << 8) | b);
@@ -126,6 +130,14 @@ void resetCallback(__attribute__((unused)) const void *request_msg, __attribute_
     reset();
 }
 
+[[noreturn]] void cleanupCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
+{
+    cleanup();
+    while (true)
+    {
+    }
+}
+
 void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
 {
     rcl_ret_t rc = rclc_node_init_default(&systemNode, "pcc", "pcc", support);
@@ -167,6 +179,16 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
                                           &resetServiceRequest, &resetServiceResponse,
                                           resetCallback), true);
     LOG(LogLevel::DEBUG, "Set up reset service");
+
+    handleError(rclc_service_init_best_effort(&cleanupService,
+                                              &systemNode,
+                                              ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
+                                              "cleanup"), true);
+    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&cleanupService, &systemNode); });
+    handleError(rclc_executor_add_service(executor, &cleanupService,
+                                          &cleanupServiceRequest, &cleanupServiceResponse,
+                                          cleanupCallback), true);
+    LOG(LogLevel::DEBUG, "Set up cleanup service");
 }
 
 void handleError(rcl_ret_t rc, bool do_reset)
