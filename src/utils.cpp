@@ -45,7 +45,7 @@ void addCleanup(CleanupAction cleanup_action)
 
 void cleanup()
 {
-    for (int i = cleanupCallbackIndex; i > 0; i--)
+    for (int i = cleanupCallbackIndex - 1; i >= 0; i--)
     {
         cleanupActions[i].callback(cleanupActions[i].context);
     }
