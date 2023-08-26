@@ -160,7 +160,7 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
     rc = rclc_publisher_init_default(&loggerPublisher,
                                      &systemNode,
                                      ROSIDL_GET_MSG_TYPE_SUPPORT(rcl_interfaces, msg, Log),
-                                     "rosout");
+                                     "/rosout");
     if (rc != RCL_RET_OK)
     {
 #if (ENABLE_BLINK_ERROR == 1)
