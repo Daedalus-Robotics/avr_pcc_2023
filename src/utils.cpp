@@ -171,6 +171,8 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
     loggerMsg.name.data = (char *) "PCC ";
     loggerMsg.name.size = sizeof(loggerMsg.name.data);
 
+    log(LogLevel::INFO, "Logger started");
+
     handleError(rclc_service_init_default(&rebootService,
                                           &systemNode,
                                           ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
@@ -179,6 +181,7 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
     handleError(rclc_executor_add_service(executor, &rebootService,
                                           &rebootServiceRequest, &rebootServiceResponse,
                                           rebootCallback), true);
+    log(LogLevel::DEBUG, "Set up reboot service");
 
     handleError(rclc_service_init_default(&shutdownService,
                                           &systemNode,
@@ -188,6 +191,7 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
     handleError(rclc_executor_add_service(executor, &shutdownService,
                                           &shutdownServiceRequest, &shutdownServiceResponse,
                                           shutdownCallback), true);
+    log(LogLevel::DEBUG, "Set up shutdown service");
 }
 
 void handleError(rcl_ret_t error, bool do_reset)
