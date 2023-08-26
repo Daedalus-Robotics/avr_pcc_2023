@@ -54,7 +54,7 @@ void cleanup()
 [[noreturn]] void doReset()
 {
     // Ensure that the cleanup doesn't stop the reset
-    Watchdog.enable(5000);
+    Watchdog.enable(8000);
     cleanup();
     Watchdog.enable(1);
     while (true)
