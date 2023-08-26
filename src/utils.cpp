@@ -21,10 +21,6 @@ rcl_service_t rebootService;
 std_srvs__srv__Empty_Request rebootServiceRequest;
 std_srvs__srv__Empty_Request rebootServiceResponse;
 
-rcl_service_t shutdownService;
-std_srvs__srv__Empty_Request shutdownServiceRequest;
-std_srvs__srv__Empty_Request shutdownServiceResponse;
-
 void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b)
 {
     onboardNeopixel.setPixelColor(0, (r << 16) | (g << 8) | b);
@@ -48,15 +44,6 @@ void cleanup()
     for (int i = cleanupCallbackIndex - 1; i >= 0; i--)
     {
         cleanupActions[i].callback(cleanupActions[i].context);
-    }
-}
-
-[[noreturn]] void shutdown()
-{
-    setOnboardNeopixel(16, 0, 16);
-    cleanup();
-    while (true)
-    {
     }
 }
 
@@ -139,11 +126,6 @@ void rebootCallback(__attribute__((unused)) const void *request_msg, __attribute
     reset();
 }
 
-void shutdownCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
-{
-    shutdown();
-}
-
 void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
 {
     rcl_ret_t rc = rclc_node_init_default(&systemNode, "pcc", "pcc", support);
@@ -185,16 +167,6 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
                                           &rebootServiceRequest, &rebootServiceResponse,
                                           rebootCallback), true);
     LOG(LogLevel::DEBUG, "Set up reboot service");
-
-    handleError(rclc_service_init_best_effort(&shutdownService,
-                                              &systemNode,
-                                              ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
-                                              "shutdown"), true);
-    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&shutdownService, &systemNode); });
-    handleError(rclc_executor_add_service(executor, &shutdownService,
-                                          &shutdownServiceRequest, &shutdownServiceResponse,
-                                          shutdownCallback), true);
-    LOG(LogLevel::DEBUG, "Set up shutdown service");
 }
 
 void handleError(rcl_ret_t rc, bool do_reset)
