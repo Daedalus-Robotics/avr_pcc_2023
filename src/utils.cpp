@@ -34,7 +34,7 @@ void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b)
 void beginOnboardNeopixel()
 {
     onboardNeopixel.begin();
-    onboardNeopixel.setBrightness(20);
+    onboardNeopixel.setBrightness(100);
     setOnboardNeopixel(255, 95, 0);
 }
 
