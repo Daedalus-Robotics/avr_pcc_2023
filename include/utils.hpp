@@ -52,11 +52,11 @@ void addCleanup(CleanupAction cleanup_action);
 
 enum [[maybe_unused]] LogLevel
 {
-    DEBUG = 10,
-    INFO = 20,
-    WARN = 30,
-    ERROR = 40,
-    FATAL = 50
+    DEBUG = rcl_interfaces__msg__Log__DEBUG,
+    INFO = rcl_interfaces__msg__Log__INFO,
+    WARN = rcl_interfaces__msg__Log__WARN,
+    ERROR = rcl_interfaces__msg__Log__ERROR,
+    FATAL = rcl_interfaces__msg__Log__FATAL
 };
 
 /**
