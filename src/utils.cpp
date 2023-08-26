@@ -84,7 +84,7 @@ void reset()
 
 void loggingReset()
 {
-    setOnboardNeopixel(255, 16, 0);
+    setOnboardNeopixel(255, 0, 25);
     digitalWrite(LED_BUILTIN, 1);
     for (int i = 0; i < 3; i++)
     {
