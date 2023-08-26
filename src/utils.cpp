@@ -111,16 +111,6 @@ void log(LogLevel level, const char msg[])
     DO_NOTHING(rcl_publish(&loggerPublisher, &loggerMsg, NULL))
 }
 
-void rebootCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
-{
-    reset();
-}
-
-void shutdownCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
-{
-    shutdown();
-}
-
 void blinkError(rcl_ret_t error)
 {
     int digit;
@@ -142,7 +132,16 @@ void blinkError(rcl_ret_t error)
         }
     }
     delay(2000);
+}
 
+void rebootCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
+{
+    reset();
+}
+
+void shutdownCallback(__attribute__((unused)) const void *request_msg, __attribute__((unused)) void *response_msg)
+{
+    shutdown();
 }
 
 void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
