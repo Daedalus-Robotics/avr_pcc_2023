@@ -147,7 +147,7 @@ void blinkError(rcl_ret_t error)
 
 void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
 {
-    rcl_ret_t rc = rclc_node_init_default(&systemNode, "pcc-system", "pcc-system", support);
+    rcl_ret_t rc = rclc_node_init_default(&systemNode, "pcc", "pcc", support);
     if (rc != RCL_RET_OK)
     {
         MAYBE_BLINK_ERROR(rc)
