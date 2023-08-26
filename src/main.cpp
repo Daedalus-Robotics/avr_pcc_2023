@@ -40,6 +40,7 @@ void setup()
     setOnboardNeopixel(0x00, 0x05, 0x00);
     digitalWrite(LED_BUILTIN, 1);
     log(LogLevel::INFO, "Setup complete");
+    LOG(LogLevel::INFO, "Setup complete")
 }
 
 [[maybe_unused]] void loop()

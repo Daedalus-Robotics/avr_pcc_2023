@@ -103,12 +103,19 @@ void loggingReset()
     doReset();
 }
 
-void log(LogLevel level, const char msg[])
+bool log(LogLevel level, const char msg[], const char file[], const char function[], uint32_t line)
 {
     loggerMsg.level = level;
     loggerMsg.msg.data = (char *) msg;
     loggerMsg.msg.size = strlen(msg);
-    DO_NOTHING(rcl_publish(&loggerPublisher, &loggerMsg, NULL))
+    loggerMsg.file.data = (char *) file;
+    loggerMsg.file.size = strlen(file);
+    loggerMsg.function.data = (char *) function;
+    loggerMsg.function.size = strlen(function);
+    loggerMsg.line = line;
+
+    rcl_ret_t rc = rcl_publish(&loggerPublisher, &loggerMsg, nullptr);
+    return rc == RCL_RET_OK;
 }
 
 void blinkError(rcl_ret_t error)
@@ -167,10 +174,10 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
     }
     CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_publisher_fini(&loggerPublisher, &systemNode); })
 
-    loggerMsg.name.data = (char *) "PCC ";
+    loggerMsg.name.data = (char *) "PCC";
     loggerMsg.name.size = sizeof(loggerMsg.name.data);
 
-    log(LogLevel::INFO, "Logger started");
+    LOG(LogLevel::INFO, "Logger started")
 
     handleError(rclc_service_init_best_effort(&rebootService,
                                               &systemNode,
@@ -180,7 +187,7 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
     handleError(rclc_executor_add_service(executor, &rebootService,
                                           &rebootServiceRequest, &rebootServiceResponse,
                                           rebootCallback), true);
-    log(LogLevel::DEBUG, "Set up reboot service");
+    LOG(LogLevel::DEBUG, "Set up reboot service")
 
     handleError(rclc_service_init_best_effort(&shutdownService,
                                               &systemNode,
@@ -190,7 +197,7 @@ void initSystemNode(rclc_support_t *support, rclc_executor_t *executor)
     handleError(rclc_executor_add_service(executor, &shutdownService,
                                           &shutdownServiceRequest, &shutdownServiceResponse,
                                           shutdownCallback), true);
-    log(LogLevel::DEBUG, "Set up shutdown service");
+    LOG(LogLevel::DEBUG, "Set up shutdown service")
 }
 
 void handleError(rcl_ret_t error, bool do_reset)
@@ -202,12 +209,12 @@ void handleError(rcl_ret_t error, bool do_reset)
         snprintf(message, sizeof(message), "ERROR: %li", error);
         if (do_reset)
         {
-            log(LogLevel::FATAL, message);
+            LOG(LogLevel::FATAL, message)
             reset();
         }
         else
         {
-            log(LogLevel::ERROR, message);
+            LOG(LogLevel::ERROR, message)
         }
     }
 }

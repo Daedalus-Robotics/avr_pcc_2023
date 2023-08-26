@@ -5,13 +5,14 @@
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 #include <rcl/error_handling.h>
-#include <std_srvs/srv/empty.h>
 #include <rcl_interfaces/msg/log.h>
+#include <std_srvs/srv/empty.h>
 
 #ifndef AVR_PCC_2023_UTILS_HPP
 #define AVR_PCC_2023_UTILS_HPP
 
 #define CLEANUP_ACTION(context, callback) { addCleanup((CleanupAction) {context, callback}); }
+#define LOG(logLevel, msg) { log(logLevel, msg, __FILE__, __FUNCTION__, __LINE__); }
 
 void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b);
 
@@ -62,8 +63,11 @@ enum [[maybe_unused]] LogLevel
  * Send a log message on a ros topic
  * @param level The log level
  * @param msg The log message to be sent
+ * @param file The name of the file where the log was called
+ * @param function The function where the log was called
+ * @param line The line number that the log was called
  */
-void log(LogLevel level, const char msg[]);
+bool log(LogLevel level, const char msg[], const char file[] = "", const char function[] = "", uint32_t line = 0);
 
 /**
  * Sets up the logger node and its publisher
