@@ -3,5 +3,5 @@
 Node::Node(rclc_support_t *support, const char name[], const char ns[]) : node()
 {
     handleError(rclc_node_init_default(&node, name, ns, support), true);
-    CLEANUP_ACTION(this, [](Node *context) { return rcl_node_fini(&context->node); })
+    CLEANUP_ACTION(this, [](Node *context) { return rcl_node_fini(&context->node); });
 }
