@@ -14,7 +14,7 @@ rcl_allocator_t allocator;
 rclc_support_t support;
 rclc_executor_t executor;
 
-void setup()
+[[maybe_unused]] void setup()
 {
     digitalWrite(LED_BUILTIN, 0);
     beginOnboardNeopixel();
