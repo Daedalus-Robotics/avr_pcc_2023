@@ -44,7 +44,7 @@ void setup()
 
     setOnboardNeopixel(0, 0, 0);
     digitalWrite(LED_BUILTIN, 1);
-    LOG(LogLevel::INFO, "Setup complete")
+    LOG(LogLevel::INFO, "Setup complete");
     delay(1000);
 }
 

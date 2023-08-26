@@ -11,8 +11,8 @@
 #ifndef AVR_PCC_2023_UTILS_HPP
 #define AVR_PCC_2023_UTILS_HPP
 
-#define CLEANUP_ACTION(context, callback) { addCleanup((CleanupAction) {context, callback}); }
-#define LOG(logLevel, msg) { log(logLevel, msg, __FILE__, __FUNCTION__, __LINE__); }
+#define CLEANUP_ACTION(context, callback) addCleanup((CleanupAction) {context, callback})
+#define LOG(logLevel, msg) log(logLevel, msg, __FILE__, __FUNCTION__, __LINE__)
 
 void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b);
 
