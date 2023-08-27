@@ -201,7 +201,7 @@ void initSystem(rclc_support_t *support, rclc_executor_t *executor)
     handleEarlyError(rclc_executor_add_timer(executor, &pingTimer));
     CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_timer_fini(&pingTimer); });
 
-    handleEarlyError(rclc_node_init_default(&systemNode, "pcc", "pcc", support));
+    handleEarlyError(rclc_node_init_default(&systemNode, "pcc_system", "pcc", support));
     CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_node_fini(&systemNode); });
 
     handleEarlyError(rclc_publisher_init_default(&loggerPublisher,
