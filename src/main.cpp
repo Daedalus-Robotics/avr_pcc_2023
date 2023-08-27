@@ -20,7 +20,9 @@ rclc_executor_t executor;
     beginOnboardNeopixel();
 
     while (!Serial)
+    {
         yield();
+    }
     Serial.begin(115200);
     set_microros_serial_transports(Serial);
 
