@@ -127,14 +127,14 @@ void pingTimerCallback(__attribute__((unused)) rcl_timer_t *timer,
     rmw_ret_t ping_result = rmw_uros_ping_agent(10, 1);
     if (ping_result != RMW_RET_OK)
     {
-        forceReset();
+        forceReset(); //ToDo: Only reset when the connection comes back
     }
 }
 
 void resetCallback(__attribute__((unused)) const void *request_msg,
                    __attribute__((unused)) void *response_msg)
 {
-    reset();
+    reset(); //ToDo: Use a timer or something to make sure the response is returned
 }
 
 [[noreturn]] void cleanupCallback(__attribute__((unused)) const void *request_msg,
