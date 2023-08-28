@@ -86,11 +86,11 @@ void reset()
 bool log(LogLevel level, const char msg[], const char file[], const char function[], uint32_t line)
 {
     loggerMsg.level = level;
-    loggerMsg.msg.data = (char *) msg;
+    loggerMsg.msg.data = const_cast<char *>(msg);
     loggerMsg.msg.size = strlen(msg);
-    loggerMsg.file.data = (char *) file;
+    loggerMsg.file.data = const_cast<char *>(file);
     loggerMsg.file.size = strlen(file);
-    loggerMsg.function.data = (char *) function;
+    loggerMsg.function.data = const_cast<char *>(function);
     loggerMsg.function.size = strlen(function);
     loggerMsg.line = line;
 
@@ -210,7 +210,7 @@ void initSystem(rclc_support_t *support, rclc_executor_t *executor)
                                                  "/rosout"));
     CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_publisher_fini(&loggerPublisher, &systemNode); });
 
-    loggerMsg.name.data = (char *) "PCC";
+    loggerMsg.name.data = const_cast<char *>("PCC");
     loggerMsg.name.size = sizeof(loggerMsg.name.data);
 
     LOG(LogLevel::INFO, "Logger started");
