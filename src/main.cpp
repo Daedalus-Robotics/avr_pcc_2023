@@ -5,10 +5,9 @@
 #include <rclc/executor.h>
 #include "utils.hpp"
 
-#define NUM_TIMERS 0
-#define NUM_SUBSCRIPTIONS 0
-#define NUM_SERVICES 0
-#define NUM_EXECUTOR_HANDLES (SYSTEM_EXECUTOR_HANDLES + NUM_TIMERS + NUM_SUBSCRIPTIONS + NUM_SERVICES)
+#include "nodes/laser.hpp"
+
+#define NUM_EXECUTOR_HANDLES (SYSTEM_EXECUTOR_HANDLES + LASER_NODE_EXECUTOR_HANDLES)
 
 rcl_allocator_t allocator;
 rclc_support_t support;

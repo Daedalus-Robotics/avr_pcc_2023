@@ -17,6 +17,8 @@
 #define CLEANUP_ACTION(context, callback) addCleanup((CleanupAction) {context, callback})
 #define LOG(logLevel, msg) log(logLevel, msg, __FILE__, __FUNCTION__, __LINE__)
 #define HANDLE_ERROR(rc, do_reset) handleError(rc, __FILE__, __FUNCTION__, __LINE__, do_reset)
+#define SERVICE_CALLBACK(callback) reinterpret_cast<rclc_service_callback_t>(callback)
+#define SERVICE_CALLBACK_CONTEXT(callback) reinterpret_cast<rclc_service_callback_with_context_t>(callback)
 
 void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b);
 
