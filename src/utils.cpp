@@ -47,6 +47,7 @@ void addCleanup(CleanupAction cleanup_action)
 
 void cleanup()
 {
+    LOG(LogLevel::INFO, "Cleaning up");
     for (int i = cleanupCallbackIndex - 1; i >= 0; i--)
     {
         cleanupActions[i].callback(cleanupActions[i].context);
@@ -64,7 +65,7 @@ void cleanup()
 [[noreturn]] void doReset()
 {
     // Ensure that the cleanup doesn't stop the reset
-    Watchdog.enable(8000);
+    Watchdog.enable(5000);
     cleanup();
     Watchdog.enable(1);
     while (true)
@@ -74,6 +75,7 @@ void cleanup()
 
 void reset()
 {
+    LOG(LogLevel::INFO, "Resetting");
     setOnboardNeopixel(255, 16, 0);
     digitalWrite(LED_BUILTIN, 1);
     delay(50);
