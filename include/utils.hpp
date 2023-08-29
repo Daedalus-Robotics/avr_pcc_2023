@@ -67,6 +67,7 @@ enum [[maybe_unused]] LogLevel
  * @param file The name of the file where the log was called
  * @param function The function where the log was called
  * @param line The line number that the log was called
+ * @return Whether it was successful
  */
 bool log(LogLevel level,
          const char msg[], const char file[] = "", const char function[] = "", uint32_t line = 0);
@@ -82,8 +83,9 @@ void handleEarlyError(rcl_ret_t rc);
  * Checks the error code passed in and logs if it is an issue
  * @param rc The error code
  * @param do_reset Whether to reset the microcontroller if there is an error
+ * @return Whether it was successful
  */
-void handleError(rcl_ret_t rc,
+bool handleError(rcl_ret_t rc,
                  const char file[] = "", const char function[] = "", uint32_t line = 0,
                  bool do_reset = false);
 

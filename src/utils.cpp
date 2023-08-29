@@ -166,7 +166,7 @@ void handleEarlyError(rcl_ret_t rc)
     }
 }
 
-void handleError(rcl_ret_t rc, const char file[], const char function[], uint32_t line, bool do_reset)
+bool handleError(rcl_ret_t rc, const char file[], const char function[], uint32_t line, bool do_reset)
 {
     if (rc != RCL_RET_OK)
     {
@@ -193,6 +193,7 @@ void handleError(rcl_ret_t rc, const char file[], const char function[], uint32_
 #endif
         }
     }
+    return rc == RCL_RET_OK;
 }
 
 void initSystem(rclc_support_t *support, rclc_executor_t *executor)
