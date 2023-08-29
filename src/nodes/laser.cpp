@@ -39,7 +39,8 @@ LaserNode::LaserNode(
 
                                              LOG(LogLevel::DEBUG, "Laser fire off");
                                          }), true);
-    HANDLE_ERROR(rclc_executor_add_timer(executor, &fireOffTimer.timer), false);
+    HANDLE_ERROR(rcl_timer_cancel(&fireOffTimer.timer), true);
+    HANDLE_ERROR(rclc_executor_add_timer(executor, &fireOffTimer.timer), true);
 
     HANDLE_ERROR(rclc_timer_init_default(&fireCooldownTimer.timer, support, LASER_FIRE_COOLDOWN,
                                          [](rcl_timer_t *timer, __attribute__((unused)) int64_t n)
@@ -53,12 +54,13 @@ LaserNode::LaserNode(
 
                                              LOG(LogLevel::DEBUG, "Laser fire cooldown finished");
                                          }), true);
-    HANDLE_ERROR(rclc_executor_add_timer(executor, &fireCooldownTimer.timer), false);
+    HANDLE_ERROR(rcl_timer_cancel(&fireCooldownTimer.timer), true);
+    HANDLE_ERROR(rclc_executor_add_timer(executor, &fireCooldownTimer.timer), true);
 
-    HANDLE_ERROR(rclc_service_init_best_effort(&fireService,
-                                               &node,
-                                               ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Trigger),
-                                               "fire"), true);
+    HANDLE_ERROR(rclc_service_init_default(&fireService,
+                                           &node,
+                                           ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Trigger),
+                                           "fire"), true);
     CLEANUP_ACTION(this, [](Node *context)
     {
         auto *laser_node = (LaserNode * )(context);
@@ -67,7 +69,7 @@ LaserNode::LaserNode(
     HANDLE_ERROR(rclc_executor_add_service_with_context(executor,
                                                         &fireService,
                                                         &fireRequest, &fireResponse,
-                                                        SERVICE_CALLBACK_CONTEXT(&fireCallback), this), true);
+                                                        CONTEXT_SERVICE_CALLBACK(LaserNode, fire), this), true);
 
     HANDLE_ERROR(rclc_service_init_default(&setLoopService,
                                            &node,
@@ -84,26 +86,50 @@ LaserNode::LaserNode(
                                                         SERVICE_CALLBACK_CONTEXT(&setLoopCallback), this), true);
 }
 
-bool LaserNode::fire()
+void LaserNode::fire(__attribute__((unused)) const void *request, void *response)
 {
+    auto response_msg = (std_srvs__srv__Trigger_Response *) response;
+    response_msg->success = false;
+
     if (!laserState && !loopState && !cooldownState)
     {
-        if (!HANDLE_ERROR(rcl_timer_reset(&fireOffTimer.timer), false))
+        if (HANDLE_ERROR(rcl_timer_reset(&fireOffTimer.timer), false))
         {
             setLaser(true);
+            response_msg->success = true;
             LOG(LogLevel::DEBUG, "Laser fire on");
         }
-        return true;
     }
-    else
+
+    if (response_msg->success)
     {
-        return false;
+        response_msg->message.data = const_cast<char *>("Success");
+        response_msg->message.size = 7;
+    }
+    else if (loopState)
+    {
+        response_msg->message.data = const_cast<char *>("Loop is on");
+        response_msg->message.size = 10;
+        LOG(LogLevel::WARN, "Tried to fire laser while loop is on");
+    }
+    else if (cooldownState)
+    {
+        response_msg->message.data = const_cast<char *>("Laser is on cooldown");
+        response_msg->message.size = 20;
+        LOG(LogLevel::WARN, "Tried to fire laser while on cooldown");
+    }
+    else if (laserState)
+    {
+        response_msg->message.data = const_cast<char *>("Already firing");
+        response_msg->message.size = 14;
+        LOG(LogLevel::WARN, "Tried to fire laser while already on");
     }
 }
 
 bool LaserNode::setLoop(bool state)
 {
-
+    loopState = state;
+    return true;
 }
 
 void LaserNode::setLaser(bool state)
@@ -120,19 +146,9 @@ void LaserNode::setLaser(bool state)
     }
 }
 
-void LaserNode::fireCallback(__attribute__((unused)) const std_srvs__srv__Trigger_Request *request_msg,
-                             std_srvs__srv__Trigger_Response *response_msg,
-                             LaserNode laser_node)
-{
-    bool success = laser_node.fire();
-    response_msg->success = success;
-    response_msg->message.data = const_cast<char *>(success ? "Success" : "Loop is active");
-    response_msg->message.size = sizeof(response_msg->message.data);
-}
-
 void LaserNode::setLoopCallback(const std_srvs__srv__SetBool_Request *request_msg,
                                 std_srvs__srv__SetBool_Response *response_msg,
-                                LaserNode laser_node)
+                                LaserNode *laser_node)
 {
 
 }

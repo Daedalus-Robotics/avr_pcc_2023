@@ -23,15 +23,17 @@ class LaserNode : Node
 public:
     LaserNode(rclc_support_t *support, rclc_executor_t *executor, uint32_t laser_pin);
 
-    bool fire();
-
-    bool setLoop(bool state);
-
 private:
     bool loopState = false;
     bool laserState = false;
+    bool cooldownState = false;
 
     uint32_t laserPin;
+    TimerWithContext fireOffTimer;
+    TimerWithContext fireCooldownTimer;
+    TimerWithContext loopOnTimer;
+    TimerWithContext loopOffTimer;
+    TimerWithContext loopCooldownTimer;
     rcl_service_t fireService;
     rcl_service_t setLoopService;
     std_srvs__srv__Trigger_Request fireRequest;
@@ -39,15 +41,15 @@ private:
     std_srvs__srv__Trigger_Response fireResponse;
     std_srvs__srv__SetBool_Response setLoopResponse;
 
-    void setLaser(bool state);
+    void fire(__attribute__((unused)) const void *request, void *response);
 
-    static void fireCallback(__attribute__((unused)) const std_srvs__srv__Trigger_Request *request_msg,
-                             std_srvs__srv__Trigger_Response *response_msg,
-                             LaserNode laser_node);
+    bool setLoop(bool state);
+
+    void setLaser(bool state);
 
     static void setLoopCallback(const std_srvs__srv__SetBool_Request *request_msg,
                                 std_srvs__srv__SetBool_Response *response_msg,
-                                LaserNode laser_node);
+                                LaserNode *laser_node);
 };
 
 
