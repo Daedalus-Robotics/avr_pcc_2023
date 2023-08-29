@@ -193,13 +193,12 @@ bool handleError(rcl_ret_t rc, const char file[], const char function[], uint32_
     }
 }
 
-void resetCallback(__attribute__((unused)) const void *request_msg,
-                   void *response_msg)
+void resetCallback(__attribute__((unused)) const void *request, void *response)
 {
-    auto response = (std_srvs__srv__Trigger_Response *) response_msg;
-    response->success = !cleanupScheduled;
-    response->message.data = const_cast<char *>(!cleanupScheduled ? "Reset scheduled" : "Cleanup already scheduled");
-    response->message.size = !cleanupScheduled ? 15 : 25;
+    auto response_msg = (std_srvs__srv__Trigger_Response *) response;
+    response_msg->success = !cleanupScheduled;
+    response_msg->message.data = const_cast<char *>(!cleanupScheduled ? "Reset scheduled" : "Cleanup already scheduled");
+    response_msg->message.size = !cleanupScheduled ? 15 : 25;
     if (!cleanupScheduled)
     {
         resetScheduled = true;
@@ -207,13 +206,12 @@ void resetCallback(__attribute__((unused)) const void *request_msg,
     }
 }
 
-void cleanupCallback(__attribute__((unused)) const void *request_msg,
-                     void *response_msg)
+void cleanupCallback(__attribute__((unused)) const void *request, void *response)
 {
-    auto response = (std_srvs__srv__Trigger_Response *) response_msg;
-    response->success = !resetScheduled;
-    response->message.data = const_cast<char *>(!resetScheduled ? "Cleanup scheduled" : "Reset already scheduled");
-    response->message.size = !resetScheduled ? 17 : 23;
+    auto response_msg = (std_srvs__srv__Trigger_Response *) response;
+    response_msg->success = !resetScheduled;
+    response_msg->message.data = const_cast<char *>(!resetScheduled ? "Cleanup scheduled" : "Reset already scheduled");
+    response_msg->message.size = !resetScheduled ? 17 : 23;
     if (!resetScheduled)
     {
         cleanupScheduled = true;
