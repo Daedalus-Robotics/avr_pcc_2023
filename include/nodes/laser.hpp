@@ -4,18 +4,19 @@
 #include <rclc/executor.h>
 #include <std_srvs/srv/trigger.h>
 #include <std_srvs/srv/set_bool.h>
+#include "context_timer.hpp"
 #include "utils.hpp"
 #include "node.hpp"
 
 #ifndef AVR_PCC_2023_LASER_HPP
 #define AVR_PCC_2023_LASER_HPP
 
-#define LASER_FIRE_DURATION 250
-#define LASER_FIRE_INTERVAL 750
-#define LASER_LOOP_DURATION 100
-#define LASER_LOOP_INTERVAL 500
+#define LASER_FIRE_DURATION RCL_MS_TO_NS(250)
+#define LASER_FIRE_COOLDOWN RCL_MS_TO_NS(750)
+#define LASER_LOOP_DURATION RCL_MS_TO_NS(100)
+#define LASER_LOOP_COOLDOWN RCL_MS_TO_NS(500)
 
-#define LASER_NODE_EXECUTOR_HANDLES 2
+#define LASER_NODE_EXECUTOR_HANDLES 7
 
 class LaserNode : Node
 {
@@ -40,7 +41,7 @@ private:
 
     void setLaser(bool state);
 
-    static void fireCallback(const std_srvs__srv__Trigger_Request *request_msg,
+    static void fireCallback(__attribute__((unused)) const std_srvs__srv__Trigger_Request *request_msg,
                              std_srvs__srv__Trigger_Response *response_msg,
                              LaserNode laser_node);
 
