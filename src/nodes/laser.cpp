@@ -86,7 +86,7 @@ LaserNode::LaserNode(
 
 bool LaserNode::fire()
 {
-    if (!laserState && !loopState)
+    if (!laserState && !loopState && !cooldownState)
     {
         if (!HANDLE_ERROR(rcl_timer_reset(&fireOffTimer.timer), false))
         {
