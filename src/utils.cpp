@@ -12,20 +12,20 @@ Adafruit_NeoPixel onboardNeopixel(1, 8, NEO_GRB);
 int cleanupCallbackIndex = 0;
 CleanupAction cleanupActions[15];
 
+bool lastPingOk = true;
+bool resetScheduled = false;
+bool cleanupScheduled = false;
+
 rcl_timer_t pingTimer;
-
 rcl_node_t systemNode;
-
 rcl_publisher_t loggerPublisher;
-rcl_interfaces__msg__Log loggerMsg;
-
 rcl_service_t resetService;
-std_srvs__srv__Empty_Request resetServiceRequest;
-std_srvs__srv__Empty_Request resetServiceResponse;
-
 rcl_service_t cleanupService;
-std_srvs__srv__Empty_Request cleanupServiceRequest;
-std_srvs__srv__Empty_Request cleanupServiceResponse;
+rcl_interfaces__msg__Log loggerMsg;
+std_srvs__srv__Trigger_Request resetServiceRequest;
+std_srvs__srv__Trigger_Request cleanupServiceRequest;
+std_srvs__srv__Trigger_Response resetServiceResponse;
+std_srvs__srv__Trigger_Response cleanupServiceResponse;
 
 void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b)
 {
@@ -62,15 +62,12 @@ void cleanup()
     }
 }
 
-[[noreturn]] void doReset()
+void rawReset()
 {
     // Ensure that the cleanup doesn't stop the reset
     Watchdog.enable(5000);
     cleanup();
-    Watchdog.enable(1);
-    while (true)
-    {
-    }
+    forceReset();
 }
 
 void reset()
@@ -82,7 +79,7 @@ void reset()
     digitalWrite(LED_BUILTIN, 0);
     delay(50);
     digitalWrite(LED_BUILTIN, 1);
-    doReset();
+    rawReset();
 }
 
 bool log(LogLevel level, const char msg[], const char file[], const char function[], uint32_t line)
@@ -123,31 +120,6 @@ void blinkError(rcl_ret_t error)
     delay(2000);
 }
 
-void pingTimerCallback(__attribute__((unused)) rcl_timer_t *timer,
-                       __attribute__((unused)) int64_t time_since_last_call)
-{
-    rmw_ret_t ping_result = rmw_uros_ping_agent(10, 1);
-    if (ping_result != RMW_RET_OK)
-    {
-        forceReset(); //ToDo: Only reset when the connection comes back
-    }
-}
-
-void resetCallback(__attribute__((unused)) const void *request_msg,
-                   __attribute__((unused)) void *response_msg)
-{
-    reset(); //ToDo: Use a timer or something to make sure the response is returned
-}
-
-[[noreturn]] void cleanupCallback(__attribute__((unused)) const void *request_msg,
-                                  __attribute__((unused)) void *response_msg)
-{
-    cleanup();
-    while (true)
-    {
-    }
-}
-
 void handleEarlyError(rcl_ret_t rc)
 {
     if (rc != RCL_RET_OK)
@@ -164,7 +136,7 @@ void handleEarlyError(rcl_ret_t rc)
             delay(50);
             digitalWrite(LED_BUILTIN, 1);
         }
-        doReset();
+        rawReset();
     }
 }
 
@@ -198,11 +170,61 @@ bool handleError(rcl_ret_t rc, const char file[], const char function[], uint32_
     return rc == RCL_RET_OK;
 }
 
+[[noreturn]] void pingTimerCallback(__attribute__((unused)) rcl_timer_t *timer,
+                                    __attribute__((unused)) int64_t n)
+{
+    rmw_ret_t ping_result = rmw_uros_ping_agent(10, 1);
+    if (!lastPingOk && ping_result == RMW_RET_OK)
+    {
+        forceReset();
+    }
+    lastPingOk = ping_result != RMW_RET_OK;
+
+    if (resetScheduled)
+    {
+        reset();
+    }
+    else if (cleanupScheduled)
+    {
+        cleanup();
+        while (true)
+        {
+        }
+    }
+}
+
+void resetCallback(__attribute__((unused)) const void *request_msg,
+                   void *response_msg)
+{
+    auto response = (std_srvs__srv__Trigger_Response *) response_msg;
+    response->success = !cleanupScheduled;
+    response->message.data = const_cast<char *>(!cleanupScheduled ? "Reset scheduled" : "Cleanup already scheduled");
+    response->message.size = !cleanupScheduled ? 15 : 25;
+    if (!cleanupScheduled)
+    {
+        resetScheduled = true;
+        LOG(LogLevel::INFO, "Reset scheduled");
+    }
+}
+
+void cleanupCallback(__attribute__((unused)) const void *request_msg,
+                     void *response_msg)
+{
+    auto response = (std_srvs__srv__Trigger_Response *) response_msg;
+    response->success = !resetScheduled;
+    response->message.data = const_cast<char *>(!resetScheduled ? "Cleanup scheduled" : "Reset already scheduled");
+    response->message.size = !resetScheduled ? 17 : 23;
+    if (!resetScheduled)
+    {
+        cleanupScheduled = true;
+        LOG(LogLevel::INFO, "Cleanup scheduled");
+    }
+}
+
 void initSystem(rclc_support_t *support, rclc_executor_t *executor)
 {
     handleEarlyError(rclc_timer_init_default(&pingTimer, support, RCL_MS_TO_NS(1000), pingTimerCallback));
     handleEarlyError(rclc_executor_add_timer(executor, &pingTimer));
-    CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_timer_fini(&pingTimer); });
 
     handleEarlyError(rclc_node_init_default(&systemNode, "pcc_system", "pcc", support));
     CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_node_fini(&systemNode); });
@@ -220,7 +242,7 @@ void initSystem(rclc_support_t *support, rclc_executor_t *executor)
 
     HANDLE_ERROR(rclc_service_init_best_effort(&resetService,
                                                &systemNode,
-                                               ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
+                                               ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Trigger),
                                                "reset"), true);
     CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&resetService, &systemNode); });
     HANDLE_ERROR(rclc_executor_add_service(executor, &resetService,
@@ -230,7 +252,7 @@ void initSystem(rclc_support_t *support, rclc_executor_t *executor)
 
     HANDLE_ERROR(rclc_service_init_best_effort(&cleanupService,
                                                &systemNode,
-                                               ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Empty),
+                                               ROSIDL_GET_SRV_TYPE_SUPPORT(std_srvs, srv, Trigger),
                                                "cleanup"), true);
     CLEANUP_ACTION(nullptr, [](Node *_) { return rcl_service_fini(&cleanupService, &systemNode); });
     HANDLE_ERROR(rclc_executor_add_service(executor, &cleanupService,
