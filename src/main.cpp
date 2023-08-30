@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <Adafruit_SleepyDog.h>
 #include <micro_ros_platformio.h>
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
