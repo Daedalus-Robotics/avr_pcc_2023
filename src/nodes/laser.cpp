@@ -1,5 +1,8 @@
 #include "nodes/laser.hpp"
 
+#include <Arduino.h>
+#include "utils.hpp"
+
 LaserNode::LaserNode(
         rclc_support_t *support,
         rclc_executor_t *executor,

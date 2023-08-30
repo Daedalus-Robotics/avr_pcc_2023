@@ -214,7 +214,9 @@ void resetCallback(__attribute__((unused)) const void *request, void *response)
 {
     auto response_msg = (std_srvs__srv__Trigger_Response *) response;
     response_msg->success = !cleanupScheduled;
-    response_msg->message.data = const_cast<char *>(!cleanupScheduled ? "Reset scheduled" : "Cleanup already scheduled");
+    response_msg->message.data = const_cast<char *>(!cleanupScheduled
+                                                    ? "Reset scheduled"
+                                                    : "Cleanup already scheduled");
     response_msg->message.size = !cleanupScheduled ? 15 : 25;
     if (!cleanupScheduled)
     {

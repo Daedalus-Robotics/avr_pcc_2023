@@ -1,11 +1,9 @@
-#include <Arduino.h>
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 #include <std_srvs/srv/trigger.h>
 #include <std_srvs/srv/set_bool.h>
 #include "context_timer.hpp"
-#include "utils.hpp"
 #include "node.hpp"
 
 #ifndef AVR_PCC_2023_LASER_HPP
