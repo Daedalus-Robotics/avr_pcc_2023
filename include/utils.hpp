@@ -1,13 +1,10 @@
 #include <Arduino.h>
-#include <Adafruit_SleepyDog.h>
+#include <Adafruit_SleepyDog.h> //ToDo: default watchdog
 #include <Adafruit_NeoPixel.h>
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
-#include <rcl/error_handling.h>
-#include <rmw_microros/rmw_microros.h>
 #include <rcl_interfaces/msg/log.h>
-#include <std_srvs/srv/trigger.h>
 
 #ifndef AVR_PCC_2023_UTILS_HPP
 #define AVR_PCC_2023_UTILS_HPP
@@ -17,8 +14,15 @@
 #define CLEANUP_ACTION(context, callback) addCleanup((CleanupAction) {context, callback})
 #define LOG(logLevel, msg) log(logLevel, msg, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 #define HANDLE_ERROR(rc, do_reset) handleError(rc, __FILE__, __PRETTY_FUNCTION__, __LINE__, do_reset)
-#define SERVICE_CALLBACK(callback) reinterpret_cast<rclc_service_callback_t>(callback)
-#define SERVICE_CALLBACK_CONTEXT(callback) reinterpret_cast<rclc_service_callback_with_context_t>(callback)
+#define CONTEXT_SERVICE_CALLBACK(cls, func) [](const void *req, void *res, void *void_context) \
+{                                                                                              \
+    auto context = (cls *) void_context;                                                       \
+    context->func(req, res);                                                                   \
+}
+
+extern "C" char *sbrk(int incr);
+
+__attribute__((unused)) int getFreeMem();
 
 void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b);
 

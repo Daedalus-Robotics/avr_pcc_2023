@@ -36,9 +36,10 @@ rclc_executor_t executor;
     setOnboardNeopixel(0, 0, 0);
     digitalWrite(LED_BUILTIN, 1);
     LOG(LogLevel::INFO, "Setup complete");
+    Watchdog.enable(2500);
 }
 
 [[maybe_unused]] void loop()
 {
-    handleError(rclc_executor_spin(&executor));
+    HANDLE_ERROR(rclc_executor_spin(&executor), false);
 }

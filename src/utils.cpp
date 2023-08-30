@@ -1,5 +1,9 @@
 #include "utils.hpp"
 
+#include <rcl/error_handling.h>
+#include <rmw_microros/rmw_microros.h>
+#include <std_srvs/srv/trigger.h>
+
 /**
  * If this is 1, errors will turn the neopixel red and blink the
  * led for each digit in the error code in reverse order
@@ -12,7 +16,6 @@ Adafruit_NeoPixel onboardNeopixel(1, 8, NEO_GRB);
 int cleanupCallbackIndex = 0;
 CleanupAction cleanupActions[15];
 
-bool lastPingOk = true;
 bool resetScheduled = false;
 bool cleanupScheduled = false;
 
@@ -27,6 +30,12 @@ std_srvs__srv__Trigger_Request cleanupServiceRequest;
 std_srvs__srv__Trigger_Response resetServiceResponse;
 std_srvs__srv__Trigger_Response cleanupServiceResponse;
 
+__attribute__((unused)) int getFreeMem()
+{
+    char top;
+    return &top - reinterpret_cast<char *>(sbrk(0));
+}
+
 void setOnboardNeopixel(uint8_t r, uint8_t g, uint8_t b)
 {
     onboardNeopixel.setPixelColor(0, (r << 16) | (g << 8) | b);
@@ -37,7 +46,7 @@ void beginOnboardNeopixel()
 {
     onboardNeopixel.begin();
     onboardNeopixel.setBrightness(100);
-    setOnboardNeopixel(255, 95, 0);
+    setOnboardNeopixel(255, 45, 0);
 }
 
 void addCleanup(CleanupAction cleanup_action)
@@ -54,12 +63,17 @@ void cleanup()
     }
 }
 
-[[noreturn]] void forceReset()
+[[noreturn]] void halt()
 {
-    Watchdog.enable(1);
     while (true)
     {
     }
+}
+
+[[noreturn]] void forceReset()
+{
+    Watchdog.enable(1);
+    halt();
 }
 
 void rawReset()
@@ -170,27 +184,29 @@ bool handleError(rcl_ret_t rc, const char file[], const char function[], uint32_
     return rc == RCL_RET_OK;
 }
 
-[[noreturn]] void pingTimerCallback(__attribute__((unused)) rcl_timer_t *timer,
-                                    __attribute__((unused)) int64_t n)
+void pingTimerCallback(__attribute__((unused)) rcl_timer_t *timer,
+                       __attribute__((unused)) int64_t n)
 {
+    Watchdog.reset();
     rmw_ret_t ping_result = rmw_uros_ping_agent(10, 1);
-    if (!lastPingOk && ping_result == RMW_RET_OK)
+    if (ping_result != RMW_RET_OK)
     {
         forceReset();
     }
-    lastPingOk = ping_result != RMW_RET_OK;
 
     if (resetScheduled)
     {
+        LOG(LogLevel::INFO, "Running scheduled reset");
         reset();
     }
     else if (cleanupScheduled)
     {
+        LOG(LogLevel::INFO, "Running scheduled cleanup");
         cleanup();
-        while (true)
-        {
-        }
+        LOG(LogLevel::INFO, "Halting");
+        halt();
     }
+    Watchdog.reset();
 }
 
 void resetCallback(__attribute__((unused)) const void *request, void *response)
