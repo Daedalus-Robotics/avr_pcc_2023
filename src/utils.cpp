@@ -1,5 +1,6 @@
 #include "utils.hpp"
 
+#include <Adafruit_SleepyDog.h>
 #include <rcl/error_handling.h>
 #include <rmw_microros/rmw_microros.h>
 #include <std_srvs/srv/trigger.h>

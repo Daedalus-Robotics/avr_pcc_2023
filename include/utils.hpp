@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <Adafruit_SleepyDog.h> //ToDo: default watchdog
 #include <Adafruit_NeoPixel.h>
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>

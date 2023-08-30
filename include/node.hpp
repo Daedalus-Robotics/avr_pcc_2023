@@ -1,6 +1,5 @@
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
-#include "utils.hpp"
 
 #ifndef AVR_PCC_2023_NODE_HPP
 #define AVR_PCC_2023_NODE_HPP
