@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="save-defconfig" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="source ~/esp/esp-idf/export.sh; idf.py save-defconfig" />
+  <configuration default="false" name="flash and monitor" type="ShConfigurationType">
+    <option name="SCRIPT_TEXT" value="source ~/esp/esp-idf/export.sh; idf.py flash monitor" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="source ~/esp/esp-idf/export.sh; idf.py menuconfig" />
     <option name="SCRIPT_OPTIONS" value="" />
