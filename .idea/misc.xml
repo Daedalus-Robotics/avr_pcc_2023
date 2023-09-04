@@ -5,6 +5,7 @@
     <libraryRoots>
       <file path="$PROJECT_DIR$/components/micro_ros_espidf" />
       <file path="$PROJECT_DIR$/managed_components" />
+      <file path="$USER_HOME$/esp/esp-idf" />
     </libraryRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/build" />

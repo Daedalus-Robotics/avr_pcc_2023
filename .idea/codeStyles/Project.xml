@@ -21,7 +21,7 @@
         <rule entity="CLASS" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
         <rule entity="STRUCT" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
         <rule entity="ENUM" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
-        <rule entity="ENUMERATOR" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
+        <rule entity="ENUMERATOR" visibility="ANY" specifier="ANY" prefix="" style="SCREAMING_SNAKE_CASE" suffix="" />
         <rule entity="TYPEDEF" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
         <rule entity="UNION" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
         <rule entity="CLASS_MEMBER_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
@@ -40,7 +40,7 @@
         <rule entity="CLASS" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
         <rule entity="STRUCT" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
         <rule entity="ENUM" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
-        <rule entity="ENUMERATOR" visibility="ANY" specifier="ANY" prefix="" style="PASCAL_CASE" suffix="" />
+        <rule entity="ENUMERATOR" visibility="ANY" specifier="ANY" prefix="" style="SCREAMING_SNAKE_CASE" suffix="" />
         <rule entity="TYPEDEF" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
         <rule entity="UNION" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
         <rule entity="CLASS_MEMBER_FUNCTION" visibility="ANY" specifier="ANY" prefix="" style="CAMEL_CASE" suffix="" />
