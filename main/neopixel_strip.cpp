@@ -5,7 +5,7 @@
 
 #include "system.hpp"
 
-#define CLOCK_RATIO(time) (uint32_t) (((float) APB_CLK_FREQ / 2 / 1e09f) * time)
+#define CLOCK_RATIO(time) (uint32_t) (((float) APB_CLK_FREQ / 2 / 1e09f) * (time))
 
 NeopixelStrip::NeopixelStrip(const gpio_num_t pin,
                              const NeopixelType type,

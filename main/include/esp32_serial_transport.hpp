@@ -17,7 +17,7 @@ size_t esp32SerialWrite(uxrCustomTransport *transport, const uint8_t *buf, size_
 size_t esp32SerialRead(uxrCustomTransport *transport, uint8_t *buf, size_t len, int timeout, uint8_t *err);
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif //AVR_PCC_2023_ESP32_SERIAL_TRANSPORT_H

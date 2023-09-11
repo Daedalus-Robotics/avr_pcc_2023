@@ -46,6 +46,8 @@ void reset()
     esp_restart();
 }
 
+#include "esp_timer.h"
+
 bool log(const LogLevel level, const char msg[], const char file[], const char function[], uint32_t line)
 {
     if (setupDone)
@@ -55,7 +57,7 @@ bool log(const LogLevel level, const char msg[], const char file[], const char f
         logger_msg.name.data = const_cast<char *>("PCC");
         logger_msg.name.size = 3;
 
-        logger_msg.stamp.nanosec = micros() * 1000;
+        logger_msg.stamp.nanosec = esp_timer_get_time() * 1000;
 
         logger_msg.level = level;
         logger_msg.msg.data = const_cast<char *>(msg);
@@ -223,7 +225,7 @@ void setupThread(__attribute((unused)) void *arg)
     statusStrip->show();
     while (true)
     {
-        rmw_ret_t ping_result = rmw_uros_ping_agent(500, 5);
+        rmw_ret_t ping_result = rmw_uros_ping_agent(200, 5);
         if (ping_result == RMW_RET_OK)
         {
             statusStrip->fill(0, 0, 0);

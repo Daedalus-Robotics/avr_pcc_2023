@@ -1,6 +1,5 @@
 #include <driver/uart.h>
 #include <esp_log.h>
-#include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
 #include <rcl/error_handling.h>
@@ -61,7 +60,7 @@ void cleanup()
 extern "C" [[maybe_unused]] void app_main()
 {
     // Setup status led
-    gpio_config_t led_pin_config = {
+    const gpio_config_t led_pin_config = {
             1ULL << LED_PIN,
             GPIO_MODE_OUTPUT,
             GPIO_PULLUP_DISABLE,

@@ -35,14 +35,14 @@ public:
 
     void setPixel(size_t led_num, uint8_t red, uint8_t green, uint8_t blue);
 
-    inline void setPixel(size_t led_num, RgbColor color)
+    [[maybe_unused]] inline void setPixel(size_t led_num, RgbColor color)
     {
         setPixel(led_num, color.red, color.green, color.blue);
     }
 
     void fill(uint8_t red, uint8_t green, uint8_t blue);
 
-    inline void fill(RgbColor color)
+    [[maybe_unused]] inline void fill(RgbColor color)
     {
         fill(color.red, color.green, color.blue);
     }
