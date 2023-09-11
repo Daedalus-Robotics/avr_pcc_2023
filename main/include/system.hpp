@@ -13,17 +13,7 @@
 #define LED_PIN GPIO_NUM_13
 #define SYSTEM_EXECUTOR_HANDLES 2
 
-/**
- * If this is 1, debug logs will be included
- */
-#define ENABLE_DEBUG 1
-
 #define LOG(logLevel, msg) log(logLevel, msg, __FILE__, __PRETTY_FUNCTION__, __LINE__)
-#if ENABLE_DEBUG == 1
-#define LOG_DEBUG(msg) LOG(LOGLEVEL_DEBUG, msg)
-#else
-#define LOG_DEBUG(msg) void
-#endif
 
 enum [[maybe_unused]] LogLevel
 {

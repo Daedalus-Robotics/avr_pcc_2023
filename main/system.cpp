@@ -191,7 +191,7 @@ void setupSystem(rclc_support_t *support, rclc_executor_t *executor)
     HANDLE_ROS_ERROR(rclc_executor_add_service(executor, &resetService,
                                                &resetServiceRequest, &resetServiceResponse,
                                                resetCallback), true);
-    LOG_DEBUG("Set up reset service");
+    LOG(LOGLEVEL_DEBUG, "Set up reset service");
 }
 
 void cleanupSystem()
