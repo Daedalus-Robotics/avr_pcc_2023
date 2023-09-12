@@ -1,6 +1,7 @@
 #include "system.hpp"
 
 #include <esp_log.h>
+#include <esp_timer.h>
 #include <rcl/error_handling.h>
 #include <rcl_interfaces/msg/log.h>
 #include <rmw_microros/rmw_microros.h>
@@ -12,6 +13,10 @@
  * @example If the error is 123, it will blink 3 times, 2 times, then 1 time
  */
 #define ENABLE_BLINK_ERROR 0
+/**
+ * If this is 1, debug logs will be sent, otherwise they will just be not sent, but they will remain in the firmware
+ */
+#define DEBUG_LOG 0
 
 bool setupDone = false;
 bool resetScheduled = false;
@@ -46,10 +51,14 @@ void reset()
     esp_restart();
 }
 
-#include "esp_timer.h"
-
 bool log(const LogLevel level, const char msg[], const char file[], const char function[], uint32_t line)
 {
+#if !DEBUG_LOG
+    if (level <= LOGLEVEL_DEBUG)
+    {
+        return true;
+    }
+#endif
     if (setupDone)
     {
         rcl_interfaces__msg__Log logger_msg;
@@ -57,7 +66,8 @@ bool log(const LogLevel level, const char msg[], const char file[], const char f
         logger_msg.name.data = const_cast<char *>("PCC");
         logger_msg.name.size = 3;
 
-        logger_msg.stamp.nanosec = esp_timer_get_time() * 1000;
+        logger_msg.stamp.sec = (int32_t) esp_timer_get_time() / 1000;
+        logger_msg.stamp.nanosec = 0;
 
         logger_msg.level = level;
         logger_msg.msg.data = const_cast<char *>(msg);
@@ -149,7 +159,7 @@ void pingTimerCallback(__attribute__((unused)) rcl_timer_t *timer, __attribute__
         return;
     }
 
-    rmw_ret_t ping_result = rmw_uros_ping_agent(100, 2);
+    rmw_ret_t ping_result = rmw_uros_ping_agent(100, 5);
     if (ping_result == RMW_RET_ERROR)
     {
         reset();
