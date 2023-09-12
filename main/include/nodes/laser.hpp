@@ -9,7 +9,6 @@
 #include <std_srvs/srv/set_bool.h>
 
 #include "node.hpp"
-#include "context_timer.hpp"
 #include "neopixel_strip.hpp" // ForTesting
 
 #ifndef AVR_PCC_2023_LASER_HPP
