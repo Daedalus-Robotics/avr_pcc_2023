@@ -25,6 +25,11 @@ enum [[maybe_unused]] LogLevel
 };
 #define HANDLE_ROS_ERROR(rc, do_reset) handleError(rc, true, do_reset, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 #define HANDLE_ESP_ERROR(rc, do_reset) handleError(rc, false, do_reset, __FILE__, __PRETTY_FUNCTION__, __LINE__)
+#define CONTEXT_TASK_CALLBACK(cls, func) [](void *void_context)                                \
+{                                                                                              \
+    auto context = (cls *) void_context;                                                       \
+    context->func();                                                                           \
+}
 #define CONTEXT_SERVICE_CALLBACK(cls, func) [](const void *req, void *res, void *void_context) \
 {                                                                                              \
     auto context = (cls *) void_context;                                                       \
