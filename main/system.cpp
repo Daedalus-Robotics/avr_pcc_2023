@@ -140,7 +140,6 @@ bool handleError(const int32_t rc,
 
 void pingTimerCallback(__attribute__((unused)) rcl_timer_t *timer, __attribute__((unused)) int64_t last_call_time)
 {
-    LOG(LOGLEVEL_INFO, "Running...");
     if (resetScheduled)
     {
         LOG(LOGLEVEL_INFO, "Running scheduled reset");
@@ -211,7 +210,7 @@ int vprintfLog(const char *format, va_list arg)
         char* buffer = new char[length + 1];
         vsnprintf(buffer, length, format, arg);
 
-        log(LOGLEVEL_DEBUG, buffer);
+        log(LOGLEVEL_DEBUG, buffer, "SYS", "SYS");
 
         delete[] buffer;
     }
