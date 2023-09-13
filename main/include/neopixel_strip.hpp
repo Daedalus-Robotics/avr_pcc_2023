@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <driver/gpio.h>
 #include <driver/rmt.h>
+#include <atomic>
 
 #ifndef AVR_PCC_2023_NEOPIXEL_STRIP_HPP
 #define AVR_PCC_2023_NEOPIXEL_STRIP_HPP
@@ -18,9 +19,9 @@ struct NeopixelType
 
 struct RgbColor
 {
-    uint8_t red = 0;
-    uint8_t green = 0;
-    uint8_t blue = 0;
+    std::atomic<uint8_t> red = 0;
+    std::atomic<uint8_t> green = 0;
+    std::atomic<uint8_t> blue = 0;
 };
 
 class NeopixelStrip
@@ -35,16 +36,16 @@ public:
 
     void setPixel(size_t led_num, uint8_t red, uint8_t green, uint8_t blue);
 
-    [[maybe_unused]] inline void setPixel(size_t led_num, RgbColor color)
+    inline void setPixel(const size_t led_num, const RgbColor *color)
     {
-        setPixel(led_num, color.red, color.green, color.blue);
+        setPixel(led_num, color->red, color->green, color->blue);
     }
 
     void fill(uint8_t red, uint8_t green, uint8_t blue);
 
-    [[maybe_unused]] inline void fill(RgbColor color)
+    inline void fill(const RgbColor *color)
     {
-        fill(color.red, color.green, color.blue);
+        fill(color->red, color->green, color->blue);
     }
 
 private:
