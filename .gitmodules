@@ -1,3 +1,9 @@
 [submodule "components/micro_ros_espidf"]
 	path = components/micro_ros_espidf
 	url = https://github.com/micro-ROS/micro_ros_espidf_component.git
+[submodule "extra_ros_packages/avr_pcc_2023_interfaces"]
+	path = extra_ros_packages/avr_pcc_2023_interfaces
+	url = https://github.com/Daedalus-Robotics/avr_pcc_2023_interfaces
+[submodule "extra_ros_packages/avr_2023_common_interfaces"]
+	path = extra_ros_packages/avr_2023_common_interfaces
+	url = https://github.com/Daedalus-Robotics/avr_2023_common_interfaces
