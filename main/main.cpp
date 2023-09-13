@@ -12,13 +12,15 @@
 #include "esp32_serial_transport.hpp"
 #include "neopixel_strip.hpp"
 #include "system.hpp"
+
 #include "nodes/laser.hpp"
+#include "nodes/led_strip.hpp"
 
 #ifndef RMW_UXRCE_TRANSPORT_CUSTOM
 #error micro-ROS transports misconfigured
 #endif
 
-#define EXECUTOR_HANDLES (SYSTEM_EXECUTOR_HANDLES + LASER_NODE_EXECUTOR_HANDLES)
+#define EXECUTOR_HANDLES (SYSTEM_EXECUTOR_HANDLES + LASER_NODE_EXECUTOR_HANDLES + LED_STRIP_NODE_EXECUTOR_HANDLES)
 
 static const size_t uartPort = UART_NUM_0;
 
@@ -29,6 +31,7 @@ rclc_support_t support;
 rclc_executor_t executor;
 
 LaserNode *laserNode;
+LedStripNode *ledStripNode;
 
 void setup()
 {
@@ -43,6 +46,7 @@ void setup()
     ESP_LOGI("agent", "Connected to micro-ros agent");
 
     laserNode->setup(&support, &executor);
+    ledStripNode->setup(&support, &executor);
 
     // Spin the executor
     xTaskCreate([](void *arg) { rclc_executor_spin(&executor); },
@@ -61,6 +65,7 @@ void cleanup()
 {
     ESP_LOGI("agent", "Disconnected from micro-ros agent");
 
+    ledStripNode->cleanup();
     laserNode->cleanup();
 
     cleanupSystem();
@@ -101,4 +106,5 @@ extern "C" [[maybe_unused]] void app_main()
     initSystem(&setup, &cleanup);
 
     laserNode = new LaserNode(GPIO_NUM_0, strip); // ForTesting
+    ledStripNode = new LedStripNode(strip);
 }
