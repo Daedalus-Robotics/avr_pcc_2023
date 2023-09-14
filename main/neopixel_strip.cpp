@@ -1,7 +1,6 @@
 #include "neopixel_strip.hpp"
 
 #include <cstring>
-#include <esp_err.h>
 
 #include "system.hpp"
 
