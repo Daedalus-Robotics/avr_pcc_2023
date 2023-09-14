@@ -5,6 +5,7 @@
     <libraryRoots>
       <file path="$PROJECT_DIR$/components/avr_2023_common_interfaces" />
       <file path="$PROJECT_DIR$/components/avr_pcc_2023_interfaces" />
+      <file path="$PROJECT_DIR$/components/esp-idf-lib" />
       <file path="$PROJECT_DIR$/components/micro_ros_espidf" />
       <file path="$PROJECT_DIR$/extra_ros_packages/avr_2023_common_interfaces" />
       <file path="$PROJECT_DIR$/extra_ros_packages/avr_pcc_2023_interfaces" />
