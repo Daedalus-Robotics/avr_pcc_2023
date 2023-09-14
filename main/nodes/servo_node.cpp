@@ -13,9 +13,9 @@ ServoNode::ServoNode(gpio_num_t sda, gpio_num_t scl, i2c_port_t port) : Node("pc
 {
     HANDLE_ESP_ERROR(pca9685_init_desc(&device, SERVO_DRIVER_ADDRESS, port, sda, scl), true);
     HANDLE_ESP_ERROR(pca9685_init(&device), true);
-    HANDLE_ESP_ERROR(pca9685_sleep(&device, true), true);
     HANDLE_ESP_ERROR(pca9685_set_pwm_frequency(&device, PWM_FREQ), true);
     HANDLE_ESP_ERROR(pca9685_set_pwm_value(&device, PCA9685_CHANNEL_ALL, 0), true);
+    HANDLE_ESP_ERROR(pca9685_sleep(&device, true), true);
 }
 
 void ServoNode::setup(rclc_support_t *support, rclc_executor_t *executor)
