@@ -51,6 +51,7 @@ void ServoNode::setup(rclc_support_t *support, rclc_executor_t *executor)
 
 void ServoNode::cleanup()
 {
+    HANDLE_ESP_ERROR(pca9685_sleep(&device, true), false);
     LOG(LOGLEVEL_DEBUG, "Cleaning up ServoNode");
 
     HANDLE_ROS_ERROR(rcl_service_fini(&setPosService, &node), false);
