@@ -1,3 +1,12 @@
 [submodule "components/micro_ros_espidf"]
 	path = components/micro_ros_espidf
 	url = https://github.com/micro-ROS/micro_ros_espidf_component.git
+[submodule "components/esp-idf-lib"]
+	path = components/esp-idf-lib
+	url = https://github.com/UncleRus/esp-idf-lib.git
+[submodule "extra_ros_packages/avr_2023_common_interfaces"]
+	path = extra_ros_packages/avr_2023_common_interfaces
+	url = https://github.com/Daedalus-Robotics/avr_2023_common_interfaces.git
+[submodule "extra_ros_packages/avr_pcc_2023_interfaces"]
+	path = extra_ros_packages/avr_pcc_2023_interfaces
+	url = https://github.com/Daedalus-Robotics/avr_pcc_2023_interfaces.git
