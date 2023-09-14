@@ -22,7 +22,10 @@
 #error micro-ROS transports misconfigured
 #endif
 
-#define EXECUTOR_HANDLES (SYSTEM_EXECUTOR_HANDLES + LASER_NODE_EXECUTOR_HANDLES + LED_STRIP_NODE_EXECUTOR_HANDLES + SERVO_NODE_EXECUTOR_HANDLES)
+#define EXECUTOR_HANDLES (SYSTEM_EXECUTOR_HANDLES + \
+                          LASER_NODE_EXECUTOR_HANDLES + \
+                          LED_STRIP_NODE_EXECUTOR_HANDLES + \
+                          SERVO_NODE_EXECUTOR_HANDLES)
 
 static const size_t uartPort = UART_NUM_0;
 
