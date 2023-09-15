@@ -32,8 +32,8 @@ private:
     std::atomic<bool> isUpdating;
     std::atomic<bool> shouldUpdate;
     std::atomic<uint8_t> state;
-    RgbColor primaryColor;
-    RgbColor secondaryColor;
+    AtomicRgbColor primaryColor;
+    AtomicRgbColor secondaryColor;
     std::atomic<uint8_t> mode;
     std::atomic<uint8_t> modeArgument;
 

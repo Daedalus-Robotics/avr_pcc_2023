@@ -71,6 +71,7 @@ void LedStripNode::updateThread()
                     strip->fill(0, 0, 0);
                 }
                 state++;
+                break;
         }
         strip->show();
         vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -84,13 +85,13 @@ void LedStripNode::setModeCallback(const void *request, __attribute__((unused)) 
 {
     auto request_msg = (avr_pcc_2023_interfaces__srv__SetLedStrip_Request *) request;
 
-    primaryColor.red = request_msg->color.r;
-    primaryColor.green = request_msg->color.g;
-    primaryColor.blue = request_msg->color.b;
+    primaryColor.r = request_msg->color.r;
+    primaryColor.g = request_msg->color.g;
+    primaryColor.b = request_msg->color.b;
 
-    secondaryColor.red = request_msg->secondary_color.r;
-    secondaryColor.green = request_msg->secondary_color.g;
-    secondaryColor.blue = request_msg->secondary_color.b;
+    secondaryColor.r = request_msg->secondary_color.r;
+    secondaryColor.g = request_msg->secondary_color.g;
+    secondaryColor.b = request_msg->secondary_color.b;
 
     mode = request_msg->mode;
     modeArgument = request_msg->argument;
