@@ -14,11 +14,11 @@ LedStripNode::LedStripNode(NeopixelStrip *strip) : Node("pcc_led_strip", "led_st
 
 void LedStripNode::setup(rclc_support_t *support, rclc_executor_t *executor)
 {
-    LOG(LOGLEVEL_INFO, "Setting up LaserNode");
+    LOG(LOGLEVEL_INFO, "Setting up LedStripNode");
 
     Node::setup(support, executor);
 
-    LOG(LOGLEVEL_DEBUG, "Setting up LaserNode: set mode service");
+    LOG(LOGLEVEL_DEBUG, "Setting up LedStripNode: set mode service");
     HANDLE_ROS_ERROR(rclc_service_init_default(&setModeService,
                                                &node,
                                                ROSIDL_GET_SRV_TYPE_SUPPORT(avr_pcc_2023_interfaces, srv, SetLedStrip),
@@ -33,7 +33,7 @@ void LedStripNode::setup(rclc_support_t *support, rclc_executor_t *executor)
 
 void LedStripNode::cleanup()
 {
-    LOG(LOGLEVEL_DEBUG, "Cleaning up LaserNode");
+    LOG(LOGLEVEL_DEBUG, "Cleaning up LedStripNode");
 
     HANDLE_ROS_ERROR(rcl_service_fini(&setModeService, &node), false);
 
