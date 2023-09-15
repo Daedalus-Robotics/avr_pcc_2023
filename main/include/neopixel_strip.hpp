@@ -1,6 +1,10 @@
 #include <cstdint>
+#include <color.h>
 #include <driver/gpio.h>
 #include <driver/rmt.h>
+#include <atomic>
+
+#define A_RGB(a_color) {.r = a_color.r, .g = a_color.g, .b = a_color.b}
 
 #ifndef AVR_PCC_2023_NEOPIXEL_STRIP_HPP
 #define AVR_PCC_2023_NEOPIXEL_STRIP_HPP
@@ -16,11 +20,11 @@ struct NeopixelType
     const uint8_t bitsPerCmd;
 };
 
-struct RgbColor
+struct AtomicRgbColor
 {
-    uint8_t red = 0;
-    uint8_t green = 0;
-    uint8_t blue = 0;
+    std::atomic<uint8_t> r;
+    std::atomic<uint8_t> g;
+    std::atomic<uint8_t> b;
 };
 
 class NeopixelStrip
@@ -33,19 +37,31 @@ public:
 
     void show() const;
 
-    void setPixel(size_t led_num, uint8_t red, uint8_t green, uint8_t blue);
+    void setPixel(size_t led_num, rgb_t color);
 
-    [[maybe_unused]] inline void setPixel(size_t led_num, RgbColor color)
+    inline void setPixel(size_t led_num, uint8_t red, uint8_t green, uint8_t blue)
     {
-        setPixel(led_num, color.red, color.green, color.blue);
+        setPixel(led_num, {.r = red, .g = green, .b = blue});
     }
 
-    void fill(uint8_t red, uint8_t green, uint8_t blue);
-
-    [[maybe_unused]] inline void fill(RgbColor color)
+    inline void setPixel(size_t led_num, AtomicRgbColor *atomic_color)
     {
-        fill(color.red, color.green, color.blue);
+        setPixel(led_num, atomic_color->r, atomic_color->g, atomic_color->b);
     }
+
+    void fill(rgb_t color);
+
+    inline void fill(uint8_t red, uint8_t green, uint8_t blue)
+    {
+        fill({.r = red, .g = green, .b = blue});
+    }
+
+    inline void fill(AtomicRgbColor *atomic_color)
+    {
+        fill(atomic_color->r, atomic_color->g, atomic_color->b);
+    }
+
+    [[nodiscard]] size_t getLength() const;
 
 private:
     const uint8_t bitsPerCmd;
