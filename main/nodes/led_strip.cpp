@@ -73,6 +73,7 @@ void LedStripNode::updateThread()
                 state++;
                 break;
             case avr_pcc_2023_interfaces__srv__SetLedStrip_Request__MODE_CYCLE:
+                state = (state + 1) % strip->getLength();
                 if (modeArgument >= strip->getLength())
                 {
                     shouldUpdate = false;
@@ -87,7 +88,6 @@ void LedStripNode::updateThread()
                     strip->setPixel((state + 2) % strip->getLength(), blended_180);
                     strip->setPixel((state + 2) % strip->getLength(), &primaryColor);
                 }
-                state = (state + 1) % strip->getLength();
                 break;
         }
         strip->show();
@@ -114,7 +114,6 @@ void LedStripNode::setModeCallback(const void *request, __attribute__((unused)) 
     modeArgument = request_msg->argument;
 
     shouldUpdate = true;
-    state = 0;
 
     if (!isUpdating)
     {
