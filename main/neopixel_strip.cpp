@@ -1,7 +1,6 @@
 #include "neopixel_strip.hpp"
 
 #include <cstring>
-#include <esp_err.h>
 
 #include "system.hpp"
 
@@ -43,25 +42,25 @@ void NeopixelStrip::show() const
     HANDLE_ESP_ERROR(rmt_wait_tx_done(rmtChannel, portMAX_DELAY), true);
 }
 
-void NeopixelStrip::setPixel(const size_t led_num,
-                             const uint8_t red,
-                             const uint8_t green,
-                             const uint8_t blue)
+void NeopixelStrip::setPixel(const size_t led_num, const rgb_t color)
 {
-    setBufferForLed(led_num, (green << 16) | (red << 8) | blue);
+    setBufferForLed(led_num, (color.green << 16) | (color.red << 8) | color.blue);
 }
 
-void NeopixelStrip::fill(const uint8_t red,
-                         const uint8_t green,
-                         const uint8_t blue)
+void NeopixelStrip::fill(rgb_t color)
 {
-    setPixel(0, red, green, blue);
+    setPixel(0, color.red, color.green, color.blue);
 
     const size_t led_segment_size = sizeof(rmt_item32_t) * bitsPerCmd;
     for (size_t led = 0; led < length; led++)
     {
         memcpy(&buffer[led * bitsPerCmd], &buffer[0], led_segment_size);
     }
+}
+
+size_t NeopixelStrip::getLength() const
+{
+    return length;
 }
 
 void NeopixelStrip::setBufferForLed(const size_t led_num, const uint32_t data)
