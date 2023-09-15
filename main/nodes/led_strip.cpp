@@ -72,6 +72,23 @@ void LedStripNode::updateThread()
                 }
                 state++;
                 break;
+            case avr_pcc_2023_interfaces__srv__SetLedStrip_Request__MODE_CYCLE:
+                if (modeArgument >= strip->getLength())
+                {
+                    shouldUpdate = false;
+                }
+                else
+                {
+                    rgb_t blended_90 = rgb_blend(A_RGB(secondaryColor), A_RGB(primaryColor), 90);
+                    rgb_t blended_180 = rgb_blend(A_RGB(secondaryColor), A_RGB(primaryColor), 180);
+
+                    strip->fill(&secondaryColor);
+                    strip->setPixel((state + 1) % strip->getLength(), blended_90);
+                    strip->setPixel((state + 2) % strip->getLength(), blended_180);
+                    strip->setPixel((state + 2) % strip->getLength(), &primaryColor);
+                }
+                state = (state + 1) % strip->getLength();
+                break;
         }
         strip->show();
         vTaskDelay(100 / portTICK_PERIOD_MS);
