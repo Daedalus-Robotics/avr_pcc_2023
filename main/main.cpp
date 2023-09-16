@@ -1,4 +1,6 @@
 #include <i2cdev.h>
+#include <gpio_cxx.hpp>
+#include <driver/gpio.h>
 #include <driver/uart.h>
 #include <esp_log.h>
 #include <freertos/task.h>
@@ -17,6 +19,7 @@
 #include "nodes/laser.hpp"
 #include "nodes/led_strip.hpp"
 #include "nodes/servo_node.hpp"
+#include "nodes/thermal_camera.hpp"
 
 #ifndef RMW_UXRCE_TRANSPORT_CUSTOM
 #error micro-ROS transports misconfigured
@@ -25,7 +28,8 @@
 #define EXECUTOR_HANDLES (SYSTEM_EXECUTOR_HANDLES + \
                           LASER_NODE_EXECUTOR_HANDLES + \
                           LED_STRIP_NODE_EXECUTOR_HANDLES + \
-                          SERVO_NODE_EXECUTOR_HANDLES)
+                          SERVO_NODE_EXECUTOR_HANDLES + \
+                          THERMAL_CAMERA_NODE_EXECUTOR_HANDLES)
 
 static const size_t uartPort = UART_NUM_0;
 
@@ -38,6 +42,7 @@ rclc_executor_t executor;
 LaserNode *laserNode;
 LedStripNode *ledStripNode;
 ServoNode *servoNode;
+ThermalCameraNode *thermalCameraNode;
 
 void setup()
 {
@@ -54,6 +59,7 @@ void setup()
     laserNode->setup(&support, &executor);
     ledStripNode->setup(&support, &executor);
     servoNode->setup(&support, &executor);
+    thermalCameraNode->setup(&support, &executor);
 
     // Spin the executor
     xTaskCreate([](void *arg) { rclc_executor_spin(&executor); },
@@ -72,6 +78,7 @@ void cleanup()
 {
     ESP_LOGI("agent", "Disconnected from micro-ros agent");
 
+    thermalCameraNode->cleanup();
     servoNode->cleanup();
     ledStripNode->cleanup();
     laserNode->cleanup();
@@ -117,5 +124,8 @@ extern "C" [[maybe_unused]] void app_main()
 
     laserNode = new LaserNode(GPIO_NUM_0, strip); // ForTesting
     ledStripNode = new LedStripNode(strip);
-    servoNode = new ServoNode(GPIO_NUM_23 , GPIO_NUM_22);
+    servoNode = new ServoNode(GPIO_NUM_23 , GPIO_NUM_22, I2C_NUM_0);
+    thermalCameraNode = new ThermalCameraNode(idf::GPIONumBase<idf::SDA_type>(GPIO_NUM_18),
+                                              idf::GPIONumBase<idf::SCL_type>(GPIO_NUM_19),
+                                              idf::I2CNumber::I2C1());
 }
