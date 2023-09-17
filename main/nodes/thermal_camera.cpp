@@ -146,7 +146,7 @@ void ThermalCameraNode::updateTimerCallback(__attribute__((unused)) rcl_timer_t 
     if (updateThermistor)
     {
         uint16_t recast = uInt8ToUInt16(thermistorBuffer[0], thermistorBuffer[1]);
-        float thermistor_temp = signedMag12ToFloat(recast) * AMG88XX_THERMISTOR_CONVERSION;
+        auto thermistor_temp = (float) (signedMag12ToFloat(recast) * AMG88XX_THERMISTOR_CONVERSION);
 
         refMessage.header.stamp.sec = time;
         refMessage.header.stamp.nanosec = timeNs;
@@ -161,7 +161,7 @@ void ThermalCameraNode::updateTimerCallback(__attribute__((unused)) rcl_timer_t 
         pos = i << 1;
         recast_pixel = uInt8ToUInt16(pixelBuffer[pos], pixelBuffer[pos + 1]);
 
-        pixels[i] = int12ToFloat(recast_pixel) * AMG88XX_PIXEL_TEMP_CONVERSION;
+        pixels[i] = (float) (int12ToFloat(recast_pixel) * AMG88XX_PIXEL_TEMP_CONVERSION);
     }
 
     rawMessage.header.stamp.sec = time;
