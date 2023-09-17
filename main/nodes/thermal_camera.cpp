@@ -6,6 +6,7 @@
 #include "system.hpp"
 
 #define AMG88XX_ADDR idf::I2CAddress(0x69)
+#define AMG88XX_THERMISTOR_CONVERSION .0625
 #define AMG88XX_PIXEL_TEMP_CONVERSION .25
 
 enum [[maybe_unused]] Amg88XxRegisters
@@ -143,9 +144,8 @@ void ThermalCameraNode::updateTimerCallback(__attribute__((unused)) rcl_timer_t 
 
     if (updateThermistor)
     {
-        float thermistor_temp = signedMag12ToFloat(
-                uInt8ToUInt16(thermistorBuffer[0], thermistorBuffer[1])
-        );
+        uint16_t recast = uInt8ToUInt16(thermistorBuffer[0], thermistorBuffer[1]);
+        float thermistor_temp = signedMag12ToFloat(recast) * AMG88XX_THERMISTOR_CONVERSION;
 
         refMessage.header.stamp.sec = time;
         refMessage.temperature = thermistor_temp;
