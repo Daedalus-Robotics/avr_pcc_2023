@@ -79,7 +79,7 @@ ThermalCameraNode::ThermalCameraNode(idf::GPIONumBase<idf::SDA_type> sda,
     rawMessage.length = 8;
     rawMessage.width = 8;
     rawMessage.step = 8 << 1;
-    rawMessage.data.size = AMG88XX_PIXEL_ARRAY_SIZE << 1;
+    rawMessage.data.size = AMG88XX_PIXEL_ARRAY_SIZE;
 }
 
 void ThermalCameraNode::setup(rclc_support_t *support, rclc_executor_t *executor)
@@ -157,7 +157,7 @@ void ThermalCameraNode::updateTimerCallback(__attribute__((unused)) rcl_timer_t 
     uint16_t recast_pixel;
     for (int i = 0; i < AMG88XX_PIXEL_ARRAY_SIZE; i++) {
         pos = i << 1;
-        recast_pixel = uInt8ToUInt16(pixelBuffer[pos], pixelBuffer[pos]);
+        recast_pixel = uInt8ToUInt16(pixelBuffer[pos], pixelBuffer[pos + 1]);
 
         pixels[i] = int12ToFloat(recast_pixel) * AMG88XX_PIXEL_TEMP_CONVERSION;
     }
