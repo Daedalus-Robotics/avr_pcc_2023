@@ -56,7 +56,7 @@ ThermalCameraNode::ThermalCameraNode(idf::GPIONumBase<idf::SDA_type> sda,
                                                             updateThermistor(),
                                                             thermistorBuffer(), pixelBuffer(),
                                                             pixels(),
-                                                            time()
+                                                            time(), timeNs()
 {
     try
     {
@@ -140,7 +140,8 @@ void ThermalCameraNode::updateTimerCallback(__attribute__((unused)) rcl_timer_t 
         return;
     }
 
-    time = (int32_t) (esp_timer_get_time() * 1000000);
+    time = (int32_t) (esp_timer_get_time() / 1000000);
+    timeNs = (uint32_t) (esp_timer_get_time() % 1000000);
 
     if (updateThermistor)
     {
@@ -148,6 +149,7 @@ void ThermalCameraNode::updateTimerCallback(__attribute__((unused)) rcl_timer_t 
         float thermistor_temp = signedMag12ToFloat(recast) * AMG88XX_THERMISTOR_CONVERSION;
 
         refMessage.header.stamp.sec = time;
+        refMessage.header.stamp.nanosec = timeNs;
         refMessage.temperature = thermistor_temp;
 
         HANDLE_ROS_ERROR(rcl_publish(&refPublisher, &refMessage, nullptr), false);
@@ -163,6 +165,7 @@ void ThermalCameraNode::updateTimerCallback(__attribute__((unused)) rcl_timer_t 
     }
 
     rawMessage.header.stamp.sec = time;
+    rawMessage.header.stamp.nanosec = timeNs;
     rawMessage.data.data = pixels;
 
     HANDLE_ROS_ERROR(rcl_publish(&rawPublisher, &rawMessage, nullptr), false);

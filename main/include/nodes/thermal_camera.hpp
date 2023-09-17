@@ -42,6 +42,7 @@ private:
     std::vector<uint8_t> pixelBuffer;
     float pixels[AMG88XX_PIXEL_ARRAY_SIZE];
     int32_t time;
+    uint32_t timeNs;
 
     void updateTimerCallback(rcl_timer_t *timer, int64_t n);
 
