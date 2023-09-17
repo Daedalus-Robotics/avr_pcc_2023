@@ -182,7 +182,7 @@ void setupSystem(rclc_support_t *support, rclc_executor_t *executor)
     HANDLE_ROS_ERROR(rclc_timer_init_default(
             &pingTimer,
             support,
-            RCL_MS_TO_NS(500),
+            RCL_MS_TO_NS(1000),
             &pingTimerCallback), true);
     HANDLE_ROS_ERROR(rclc_executor_add_timer(executor, &pingTimer), true);
 
