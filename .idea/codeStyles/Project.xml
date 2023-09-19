@@ -76,6 +76,7 @@
       <option name="ELSE_ON_NEW_LINE" value="true" />
       <option name="CATCH_ON_NEW_LINE" value="true" />
       <option name="ALIGN_MULTILINE_CHAINED_METHODS" value="true" />
+      <option name="SPACE_AROUND_LAMBDA_ARROW" value="false" />
       <option name="TERNARY_OPERATION_WRAP" value="5" />
       <option name="KEEP_SIMPLE_METHODS_IN_ONE_LINE" value="false" />
       <option name="IF_BRACE_FORCE" value="3" />
