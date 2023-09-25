@@ -14,7 +14,7 @@ public:
 
     virtual void setup(rclc_support_t *support, rclc_executor_t *executor);
 
-    virtual void cleanup();
+    virtual void cleanup(rclc_executor_t *executor);
 
 protected:
     const char *name;

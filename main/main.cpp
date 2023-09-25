@@ -78,10 +78,10 @@ void cleanup()
 {
     ESP_LOGI("agent", "Disconnected from micro-ros agent");
 
-    thermalCameraNode->cleanup();
-    servoNode->cleanup();
-    ledStripNode->cleanup();
-    laserNode->cleanup();
+    thermalCameraNode->cleanup(&executor);
+    servoNode->cleanup(&executor);
+    ledStripNode->cleanup(&executor);
+    laserNode->cleanup(&executor);
 
     cleanupSystem();
 }
