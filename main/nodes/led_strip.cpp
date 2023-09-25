@@ -31,13 +31,13 @@ void LedStripNode::setup(rclc_support_t *support, rclc_executor_t *executor)
                                                             this), true);
 }
 
-void LedStripNode::cleanup()
+void LedStripNode::cleanup(rclc_executor_t *executor)
 {
     LOG(LOGLEVEL_DEBUG, "Cleaning up LedStripNode");
 
     HANDLE_ROS_ERROR(rcl_service_fini(&setModeService, &node), false);
 
-    Node::cleanup();
+    Node::cleanup(executor);
 }
 
 void LedStripNode::updateThread()

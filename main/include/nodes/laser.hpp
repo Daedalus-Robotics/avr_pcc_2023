@@ -24,7 +24,7 @@ public:
 
     void setup(rclc_support_t *support, rclc_executor_t *executor) override;
 
-    void cleanup() override;
+    void cleanup(rclc_executor_t *executor) override;
 
 private:
     const gpio_num_t laserPin;

@@ -56,7 +56,7 @@ void LaserNode::setup(rclc_support_t *support, rclc_executor_t *executor)
                                                             this), true);
 }
 
-void LaserNode::cleanup()
+void LaserNode::cleanup(rclc_executor_t *executor)
 {
     HANDLE_ESP_ERROR(gpio_set_level(laserPin, 0), false);
     LOG(LOGLEVEL_DEBUG, "Cleaning up LaserNode");
@@ -64,7 +64,7 @@ void LaserNode::cleanup()
     HANDLE_ROS_ERROR(rcl_service_fini(&setLoopService, &node), false);
     HANDLE_ROS_ERROR(rcl_service_fini(&fireService, &node), false);
 
-    Node::cleanup();
+    Node::cleanup(executor);
 }
 
 void LaserNode::setLaser(bool state)
