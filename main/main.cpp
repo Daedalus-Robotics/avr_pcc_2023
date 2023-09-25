@@ -18,7 +18,7 @@
 
 #include "nodes/laser.hpp"
 #include "nodes/led_strip.hpp"
-#include "nodes/servo_node.hpp"
+#include "nodes/servo.hpp"
 #include "nodes/thermal_camera.hpp"
 
 #ifndef RMW_UXRCE_TRANSPORT_CUSTOM

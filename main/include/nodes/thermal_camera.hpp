@@ -7,10 +7,16 @@
 #include <sensor_msgs/msg/temperature.h>
 #include <avr_pcc_2023_interfaces/msg/thermal_frame.h>
 
+extern "C"
+{
+#include <micro_ros_diagnostic_updater/micro_ros_diagnostic_updater.h>
+}
+
 #include "node.hpp"
 #include "context_timer.hpp"
+#include "diagnostic_context_task.hpp"
 
-#define THERMAL_CAMERA_NODE_EXECUTOR_HANDLES 1
+#define THERMAL_CAMERA_NODE_EXECUTOR_HANDLES 3
 #define AMG88XX_PIXEL_ARRAY_SIZE 64
 
 #ifndef AVR_PCC_2023_THERMAL_CAMERA_HPP
@@ -20,16 +26,19 @@
 class ThermalCameraNode : Node
 {
 public:
-    ThermalCameraNode(idf::GPIONumBase<idf::SDA_type> sda, idf::GPIONumBase<idf::SCL_type> scl, idf::I2CNumber port = idf::I2CNumber::I2C0());
+    ThermalCameraNode(idf::GPIONumBase<idf::SDA_type> sda, idf::GPIONumBase<idf::SCL_type> scl,
+                      idf::I2CNumber port = idf::I2CNumber::I2C0());
 
     void setup(rclc_support_t *support, rclc_executor_t *executor) override;
 
-    void cleanup() override;
+    void cleanup(rclc_executor_t *executor) override;
 
 private:
     std::shared_ptr<idf::I2CMaster> master;
 
     TimerWithContext updateTimer;
+    diagnostic_updater_t diagnosticUpdater;
+    DiagnosticTaskWithContext diagnosticTask;
     rcl_publisher_t refPublisher;
     sensor_msgs__msg__Temperature refMessage;
     rcl_publisher_t rawPublisher;
@@ -37,12 +46,17 @@ private:
     rcl_publisher_t interpolatedPublisher;
     avr_pcc_2023_interfaces__msg__ThermalFrame interpolatedMessage;
 
+    bool connectionState;
     bool updateThermistor;
     std::vector<uint8_t> thermistorBuffer;
     std::vector<uint8_t> pixelBuffer;
     float pixels[AMG88XX_PIXEL_ARRAY_SIZE];
     int32_t time;
     uint32_t timeNs;
+
+    rcl_ret_t diagnosticTaskCallback(diagnostic_value_t *diagnostic_values, uint8_t *number_of_values);
+
+    void setupThermalCamera();
 
     void updateTimerCallback(rcl_timer_t *timer, int64_t n);
 
