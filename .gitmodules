@@ -10,3 +10,6 @@
 [submodule "extra_ros_packages/avr_pcc_2023_interfaces"]
 	path = extra_ros_packages/avr_pcc_2023_interfaces
 	url = https://github.com/Daedalus-Robotics/avr_pcc_2023_interfaces.git
+[submodule "extra_ros_packages/micro_ros_diagnostics"]
+	path = extra_ros_packages/micro_ros_diagnostics
+	url = https://github.com/micro-ROS/micro_ros_diagnostics

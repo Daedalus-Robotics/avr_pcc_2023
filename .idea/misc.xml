@@ -9,6 +9,7 @@
       <file path="$PROJECT_DIR$/components/micro_ros_espidf" />
       <file path="$PROJECT_DIR$/extra_ros_packages/avr_2023_common_interfaces" />
       <file path="$PROJECT_DIR$/extra_ros_packages/avr_pcc_2023_interfaces" />
+      <file path="$PROJECT_DIR$/extra_ros_packages/micro_ros_diagnostics" />
       <file path="$PROJECT_DIR$/managed_components" />
       <file path="$USER_HOME$/esp/esp-idf" />
     </libraryRoots>
