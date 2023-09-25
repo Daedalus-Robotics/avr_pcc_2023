@@ -145,7 +145,7 @@ bool handleError(const int32_t rc,
 #endif
         }
     }
-    return rc == RCL_RET_OK;
+    return rc == ESP_OK;
 }
 
 void pingTimerCallback(__attribute__((unused)) rcl_timer_t *timer, __attribute__((unused)) int64_t last_call_time)
