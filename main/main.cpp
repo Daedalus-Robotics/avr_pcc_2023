@@ -122,7 +122,7 @@ extern "C" [[maybe_unused]] void app_main()
 
     initSystem(&setup, &cleanup);
 
-    laserNode = new LaserNode(GPIO_NUM_0, strip); // ForTesting
+    laserNode = new LaserNode(GPIO_NUM_4);
     ledStripNode = new LedStripNode(strip);
     servoNode = new ServoNode(GPIO_NUM_23 , GPIO_NUM_22, I2C_NUM_0);
     thermalCameraNode = new ThermalCameraNode(idf::GPIONumBase<idf::SDA_type>(GPIO_NUM_18),

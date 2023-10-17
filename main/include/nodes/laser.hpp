@@ -9,7 +9,6 @@
 #include <std_srvs/srv/set_bool.h>
 
 #include "node.hpp"
-#include "neopixel_strip.hpp" // ForTesting
 
 #ifndef AVR_PCC_2023_LASER_HPP
 #define AVR_PCC_2023_LASER_HPP
@@ -19,8 +18,7 @@
 class LaserNode : Node
 {
 public:
-    // ForTesting
-    explicit LaserNode(gpio_num_t laser_pin, NeopixelStrip *n);
+    explicit LaserNode(gpio_num_t laser_pin);
 
     void setup(rclc_support_t *support, rclc_executor_t *executor) override;
 
@@ -28,7 +26,6 @@ public:
 
 private:
     const gpio_num_t laserPin;
-    NeopixelStrip *neo; // ForTesting
 
     rcl_service_t fireService;
     rcl_service_t setLoopService;

@@ -7,15 +7,12 @@
 #define LASER_LOOP_DURATION 100
 #define LASER_LOOP_COOLDOWN 500
 
-// ForTesting: Remove neopixel strip
-LaserNode::LaserNode(gpio_num_t laser_pin, NeopixelStrip *n) : Node("pcc_laser", "laser"),
-                                                               laserPin(laser_pin),
-                                                               fireService(), setLoopService(),
-                                                               fireRequest(), setLoopRequest(),
-                                                               fireResponse(), setLoopResponse()
+LaserNode::LaserNode(gpio_num_t laser_pin) : Node("pcc_laser", "laser"),
+                                             laserPin(laser_pin),
+                                             fireService(), setLoopService(),
+                                             fireRequest(), setLoopRequest(),
+                                             fireResponse(), setLoopResponse()
 {
-    neo = n; // ForTesting
-
     const gpio_config_t pin_config = {
             .pin_bit_mask = 1ULL << laserPin,
             .mode = GPIO_MODE_OUTPUT,
@@ -70,18 +67,7 @@ void LaserNode::cleanup()
 void LaserNode::setLaser(bool state)
 {
     laserState = state;
-//    HANDLE_ESP_ERROR(gpio_set_level(laserPin, state), !state);
-
-    // ForTesting
-    if (state)
-    {
-        neo->fill(0, 255, 0);
-    }
-    else
-    {
-        neo->fill(0, 0, 0);
-    }
-    neo->show(); // ForTesting
+    HANDLE_ESP_ERROR(gpio_set_level(laserPin, state), !state);
 }
 
 void LaserNode::tryStartLoop()
